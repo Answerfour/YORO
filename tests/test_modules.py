@@ -68,12 +68,13 @@ def test_config():
 
 def test_modules():
     print("\n=== Test modules ===")
-    from modules import FrameExtractorGUI, FileRenamerGUI, OrphanCleanerGUI, YOLOStatsGUI
+    from modules import FrameExtractorGUI, FileRenamerGUI, OrphanCleanerGUI, YOLOStatsGUI, UnlabeledProcessorGUI
     
     print("[PASS] FrameExtractorGUI imported")
     print("[PASS] FileRenamerGUI imported")
     print("[PASS] OrphanCleanerGUI imported")
     print("[PASS] YOLOStatsGUI imported")
+    print("[PASS] UnlabeledProcessorGUI imported")
 
 
 def test_app():

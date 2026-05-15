@@ -5,6 +5,7 @@ from modules.frame_extractor.gui import FrameExtractorGUI
 from modules.file_renamer.gui import FileRenamerGUI
 from modules.orphan_cleaner.gui import OrphanCleanerGUI
 from modules.yolo_stats.gui import YOLOStatsGUI
+from modules.unlabeled_processor.gui import UnlabeledProcessorGUI
 from ui.theme import Theme
 
 
@@ -46,6 +47,9 @@ class YOLOToolsApp:
         self.orphan_cleaner = OrphanCleanerGUI(notebook)
         notebook.add(self.orphan_cleaner, text="🧹 孤立文件清理")
         
+        self.unlabeled_processor = UnlabeledProcessorGUI(notebook)
+        notebook.add(self.unlabeled_processor, text="📋 无标注处理")
+        
         self.yolo_stats = YOLOStatsGUI(notebook)
         notebook.add(self.yolo_stats, text="📊 YOLO统计")
     
@@ -54,11 +58,12 @@ class YOLOToolsApp:
         messagebox.showinfo(
             "关于",
             "YOLO训练工具集合\n\n"
-            "版本: 2.0 (模块化重构版)\n\n"
+            "版本: 2.1 (模块化重构版)\n\n"
             "包含功能:\n"
             "• 视频切帧工具\n"
             "• 批量文件重命名\n"
             "• 孤立文件清理\n"
+            "• 无标注文件处理\n"
             "• YOLO标注统计\n\n"
             "基于分层架构设计，模块化开发"
         )
