@@ -1,0 +1,11 @@
+# YOLO训练工具集合 - 依赖列表
+
+# 核心依赖
+# tkinter - GUI框架 (通常随Python一起安装)
+
+# 可选依赖
+opencv-python>=4.5.0  # 视频切帧功能必需
+numpy>=1.20.0        # OpenCV依赖
+
+# 开发依赖
+# pytest>=6.0.0       # 单元测试框架 (可选)

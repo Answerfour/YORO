@@ -1,0 +1,121 @@
+# 项目文件清单
+
+## 新增模块文件
+
+```
+YOLO-Train/
+├── config/                          # 配置层
+│   ├── __init__.py                # 模块导出
+│   └── schema.py                  # 配置Schema定义
+│
+├── core/                           # 核心业务逻辑层
+│   ├── __init__.py                # 模块导出
+│   ├── base.py                    # 抽象基类 (TaskExecutor, FileProcessor, BaseModule)
+│   ├── file_operator.py           # 文件操作公共逻辑
+│   ├── natural_sort.py            # 自然排序算法
+│   └── validators.py              # 数据验证器
+│
+├── modules/                        # 功能模块层
+│   ├── __init__.py                # 模块导出
+│   │
+│   ├── frame_extractor/          # 视频切帧模块
+│   │   ├── __init__.py
+│   │   ├── extractor.py          # 核心逻辑 (FrameExtractor)
+│   │   └── gui.py               # GUI组件 (FrameExtractorGUI)
+│   │
+│   ├── file_renamer/            # 文件重命名模块
+│   │   ├── __init__.py
+│   │   ├── renamer.py           # 核心逻辑 (FileRenamer)
+│   │   └── gui.py               # GUI组件 (FileRenamerGUI)
+│   │
+│   ├── orphan_cleaner/          # 孤立文件清理模块
+│   │   ├── __init__.py
+│   │   ├── cleaner.py           # 核心逻辑 (OrphanCleaner)
+│   │   └── gui.py               # GUI组件 (OrphanCleanerGUI)
+│   │
+│   └── yolo_stats/             # YOLO统计模块
+│       ├── __init__.py
+│       ├── counter.py           # 核心逻辑 (YOLOCounter)
+│       └── gui.py               # GUI组件 (YOLOStatsGUI)
+│
+├── ui/                            # 公共UI组件层
+│   ├── __init__.py
+│   ├── components.py             # UI组件 (FileSelectionFrame, LogFrame等)
+│   └── theme.py                  # 主题样式
+│
+├── utils/                         # 工具层
+│   ├── __init__.py
+│   ├── logger.py                 # 日志工具 (Logger)
+│   ├── persistence.py            # 持久化工具 (PersistenceManager)
+│   └── thread_pool.py           # 线程池工具 (ThreadPool)
+│
+├── tests/                         # 测试模块
+│   ├── __init__.py
+│   └── test_modules.py           # 单元测试脚本
+│
+├── config_data/                   # 配置文件存储目录 (自动创建)
+│
+├── main.py                        # 程序入口
+├── app.py                         # 主应用程序 (YOLOToolsApp)
+├── README.md                      # 项目说明文档
+├── REFACTORING_SUMMARY.md        # 重构总结报告
+├── requirements.txt              # 依赖列表
+└── FILE_STRUCTURE.txt          # 本文档
+```
+
+## 保留的原始文件
+
+原有的4个独立脚本保留作为参考：
+- `cut_frame.py` - 原始视频切帧工具
+- `rename.py` - 原始文件重命名工具
+- `clean_orphans.py` - 原始孤立文件清理工具
+- `statistics_type.py` - 原始YOLO统计工具
+
+## 文件统计
+
+| 类型 | 数量 | 说明 |
+|------|------|------|
+| 总模块数 | 12 | 新增的Python模块 |
+| 核心模块 | 5 | utils, core, ui, config, tests |
+| 功能模块 | 4 | 视频切帧, 文件重命名, 孤立清理, YOLO统计 |
+| 核心逻辑文件 | 4 | extractor, renamer, cleaner, counter |
+| GUI文件 | 4 | 各模块GUI实现 |
+| 测试文件 | 1 | 单元测试 |
+| 文档文件 | 3 | README, 重构总结, 文档 |
+
+## 核心类清单
+
+### utils 模块
+- `Logger` - 日志记录器（单例）
+- `PersistenceManager` - 配置持久化管理器（单例）
+- `ThreadPool` - 线程池管理器（单例）
+
+### core 模块
+- `TaskExecutor` - 任务执行器抽象基类
+- `FileProcessor` - 文件处理器抽象基类
+- `BaseModule` - 模块基类
+- `Validator` - 数据验证器
+- `FileOperator` - 文件操作工具类
+- `natural_sort_key()` - 自然排序函数
+
+### config 模块
+- `FrameExtractorConfig` - 视频切帧配置
+- `RenamerConfig` - 文件重命名配置
+- `ClassMappingConfig` - YOLO类别映射配置
+- `AppSettings` - 应用程序全局设置
+- `OutputFormat` - 输出格式枚举
+- `NamingMode` - 命名模式枚举
+- `PairingMode` - 配对模式枚举
+
+### modules 模块
+- `FrameExtractor` - 视频切帧核心逻辑
+- `FrameExtractorGUI` - 视频切帧GUI
+- `FileRenamer` - 文件重命名核心逻辑
+- `FileRenamerGUI` - 文件重命名GUI
+- `OrphanCleaner` - 孤立文件清理核心逻辑
+- `OrphanCleanerGUI` - 孤立文件清理GUI
+- `YOLOCounter` - YOLO统计核心逻辑
+- `YOLOStatsGUI` - YOLO统计GUI
+
+### app 模块
+- `YOLOToolsApp` - 主应用程序类
