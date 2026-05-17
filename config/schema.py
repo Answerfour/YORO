@@ -1,4 +1,4 @@
-"""配置Schema定义 - 类型安全配置管理"""
+"""Configuration Schema Definition - Type-safe configuration management"""
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional
 from enum import Enum
@@ -22,7 +22,7 @@ class PairingMode(Enum):
 
 @dataclass
 class FrameExtractorConfig:
-    """视频切帧配置"""
+    """Video frame extraction configuration"""
     start_time: float = 0.0
     end_time: float = 10.0
     sample_fps: float = 1.0
@@ -40,19 +40,19 @@ class FrameExtractorConfig:
     def validate(self) -> List[str]:
         errors = []
         if self.start_time < 0:
-            errors.append("起始时间不能为负数")
+            errors.append("Start time cannot be negative")
         if self.end_time <= self.start_time:
-            errors.append("结束时间必须大于起始时间")
+            errors.append("End time must be greater than start time")
         if self.sample_fps <= 0:
-            errors.append("采样帧率必须大于0")
+            errors.append("Sample FPS must be greater than 0")
         if not 50 <= self.quality <= 100:
-            errors.append("JPEG质量必须在50-100之间")
+            errors.append("JPEG quality must be between 50-100")
         return errors
 
 
 @dataclass
 class RenamerConfig:
-    """文件重命名配置"""
+    """File renaming configuration"""
     file_type: str = "txt"
     start_number: int = 1
     digit_width: int = 6
@@ -60,14 +60,14 @@ class RenamerConfig:
 
 @dataclass
 class ClassMappingConfig:
-    """YOLO类别映射配置"""
+    """YOLO class mapping configuration"""
     mapping: Dict[int, str] = field(default_factory=lambda: {
-        0: "开水器",
-        1: "纸杯",
-        2: "厕所",
-        3: "灭火器",
-        4: "马桶",
-        5: "水槽"
+        0: "water_heater",
+        1: "paper_cup",
+        2: "toilet",
+        3: "fire_extinguisher",
+        4: "commode",
+        5: "sink"
     })
     
     def add_class(self, class_id: int, name: str) -> None:
@@ -89,7 +89,7 @@ class ClassMappingConfig:
 
 @dataclass
 class AppSettings:
-    """应用程序全局设置"""
+    """Application global settings"""
     last_output_dir: str = ""
     last_folder_path: str = ""
     window_width: int = 900
@@ -99,5 +99,5 @@ class AppSettings:
     def validate(self) -> List[str]:
         errors = []
         if self.window_width < 600 or self.window_height < 400:
-            errors.append("窗口尺寸过小")
+            errors.append("Window size is too small")
         return errors

@@ -1,4 +1,4 @@
-"""yolo_stats模块 - YOLO标注统计模块"""
+"""yolo_stats module - YOLO annotation statistics module"""
 from .gui import YOLOStatsGUI
 from .counter import YOLOCounter
 

@@ -1,4 +1,4 @@
-"""文件重命名核心逻辑"""
+"""File Renamer Core Logic"""
 import os
 import re
 from typing import List, Tuple, Dict
@@ -7,7 +7,7 @@ from core.file_operator import FileOperator
 
 
 class FileRenamer:
-    """文件重命名器"""
+    """File renamer"""
     
     def __init__(self, folder_path: str, config: 'RenamerConfig'):
         self.folder_path = folder_path
@@ -16,7 +16,7 @@ class FileRenamer:
         self.preview_new_names: List[str] = []
     
     def load_files(self) -> List[str]:
-        """加载文件列表"""
+        """Load file list"""
         if self.config.file_type == "txt":
             extensions = ['.txt']
         else:
@@ -27,10 +27,10 @@ class FileRenamer:
         return self.current_files
     
     def generate_preview(self) -> List[Tuple[str, str]]:
-        """生成重命名预览
+        """Generate rename preview
         
         Returns:
-            列表元素为 (原文件名, 新文件名)
+            List of tuples: (old_filename, new_filename)
         """
         self.preview_new_names = []
         preview_list = []
@@ -48,11 +48,11 @@ class FileRenamer:
         return preview_list
     
     def execute_rename(self) -> Tuple[List[Tuple[str, str]], List[Tuple[str, str, str]]]:
-        """执行重命名操作
+        """Execute rename operation
         
         Returns:
-            (成功列表, 失败列表)
-            每个元素为 (原文件名, 新文件名) 或 (原文件名, 新文件名, 错误信息)
+            (success_list, failed_list)
+            Each element is (old_filename, new_filename) or (old_filename, new_filename, error_message)
         """
         success = []
         failed = []
@@ -63,9 +63,9 @@ class FileRenamer:
             new_path = os.path.join(self.folder_path, new)
             
             if os.path.exists(new_path) and new_path != old_path:
-                msg = "目标文件已存在，跳过"
+                msg = "Destination file exists, skipping"
                 failed.append((old, new, msg))
-                log_lines.append(f"✗ {old} -> {new}  [失败：{msg}]")
+                log_lines.append(f"✗ {old} -> {new}  [Failed: {msg}]")
                 continue
             
             try:
@@ -74,12 +74,12 @@ class FileRenamer:
                 log_lines.append(f"✓ {old} -> {new}")
             except Exception as e:
                 failed.append((old, new, str(e)))
-                log_lines.append(f"✗ {old} -> {new}  [错误：{e}]")
+                log_lines.append(f"✗ {old} -> {new}  [Error: {e}]")
         
         if log_lines:
             log_file = os.path.join(self.folder_path, 'rename_log.txt')
             with open(log_file, 'w', encoding='utf-8') as f:
-                f.write("文件重命名记录\n")
+                f.write("File rename log\n")
                 f.write("=" * 60 + "\n")
                 f.write("\n".join(log_lines))
         

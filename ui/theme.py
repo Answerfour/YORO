@@ -1,9 +1,9 @@
-"""主题样式模块 - 提供统一的UI主题"""
+"""Theme Styles Module - Provides unified UI themes"""
 from tkinter import ttk
 
 
 class Theme:
-    """UI主题管理"""
+    """UI theme manager"""
     
     COLORS = {
         'primary': '#0078D4',
@@ -27,7 +27,7 @@ class Theme:
     
     @staticmethod
     def apply_default_style():
-        """应用默认主题样式"""
+        """Apply default theme styles"""
         style = ttk.Style()
         try:
             style.theme_use('clam')
@@ -48,13 +48,13 @@ class Theme:
     
     @staticmethod
     def configure_button_style(style_name: str, **kwargs):
-        """配置按钮样式"""
+        """Configure button styles"""
         style = ttk.Style()
         style.configure(f'{style_name}.TButton', **kwargs)
     
     @staticmethod
     def configure_treeview_colors():
-        """配置Treeview颜色"""
+        """Configure Treeview colors"""
         style = ttk.Style()
         style.map('Treeview',
                   background=[('selected', '#0078D4')],

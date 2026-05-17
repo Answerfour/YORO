@@ -1,4 +1,4 @@
-"""orphan_cleaner模块 - 孤立文件清理模块"""
+"""orphan_cleaner module - Orphan file cleaning module"""
 from .gui import OrphanCleanerGUI
 from .cleaner import OrphanCleaner
 

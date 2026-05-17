@@ -1,44 +1,44 @@
-"""自然排序工具 - 处理文件名中的数字部分排序"""
+"""Natural Sort Utilities - Handle numeric sorting in filenames"""
 import re
 from typing import List
 
 
 def natural_sort_key(filename: str) -> List:
-    """自然排序键函数，处理文件名中的数字部分
+    """Natural sort key function, handles numeric portions of filenames
     
-    例如:
+    Example:
         'file1.txt' -> ['file', 1, '.txt']
         'file10.txt' -> ['file', 10, '.txt']
         'file2.txt' -> ['file', 2, '.txt']
     
     Returns:
-        排序键列表
+        Sort key list
     """
     return [int(text) if text.isdigit() else text.lower()
             for text in re.split(r'(\d+)', filename)]
 
 
 def natural_sort(files: List[str]) -> List[str]:
-    """对文件列表进行自然排序
+    """Sort file list using natural sorting
     
     Args:
-        files: 文件名列表
+        files: List of filenames
     
     Returns:
-        排序后的文件列表
+        Sorted file list
     """
     return sorted(files, key=natural_sort_key)
 
 
 def get_sorted_files(folder_path: str, extensions: List[str]) -> List[str]:
-    """获取文件夹中指定扩展名的文件并自然排序
+    """Get files with specified extensions from folder and sort naturally
     
     Args:
-        folder_path: 文件夹路径
-        extensions: 扩展名列表，如 ['.txt', '.jpg']
+        folder_path: Folder path
+        extensions: List of extensions, e.g. ['.txt', '.jpg']
     
     Returns:
-        排序后的文件路径列表
+        Sorted list of file paths
     """
     import os
     

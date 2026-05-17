@@ -1,4 +1,4 @@
-"""孤立文件清理核心逻辑"""
+"""Orphan File Cleaner Core Logic"""
 import os
 import shutil
 from typing import List, Set, Tuple, Dict
@@ -7,7 +7,7 @@ from datetime import datetime
 
 
 class OrphanCleaner:
-    """孤立文件清理器"""
+    """Orphan file cleaner"""
     
     def __init__(self, folder1_path: str, folder2_path: str, pairing_mode: str = "name"):
         self.folder1_path = folder1_path
@@ -17,15 +17,15 @@ class OrphanCleaner:
         self.folder2_files: List[Tuple[str, str, str]] = []
     
     def load_files(self):
-        """加载两个文件夹的文件"""
+        """Load files from both folders"""
         self.folder1_files = FileOperator.get_image_files(self.folder1_path)
         self.folder2_files = FileOperator.get_txt_files(self.folder2_path)
     
     def analyze(self) -> Dict:
-        """分析文件配对情况
+        """Analyze file pairing status
         
         Returns:
-            包含配对和孤立文件信息的字典
+            Dictionary containing paired and orphan file information
         """
         folder1_names = set([f[1] for f in self.folder1_files])
         folder2_names = set([f[1] for f in self.folder2_files])
@@ -52,14 +52,14 @@ class OrphanCleaner:
         }
     
     def delete_orphans(self, orphan1: Set[str], orphan2: Set[str]) -> Tuple[int, List[str]]:
-        """删除孤立文件
+        """Delete orphan files
         
         Args:
-            orphan1: 孤立图片名称集合
-            orphan2: 孤立TXT名称集合
+            orphan1: Set of orphan image names
+            orphan2: Set of orphan TXT names
         
         Returns:
-            (删除数量, 日志消息列表)
+            (deleted_count, log_messages)
         """
         deleted_count = 0
         logs = []
@@ -69,10 +69,10 @@ class OrphanCleaner:
                 if file_name == name:
                     try:
                         os.remove(file_path)
-                        logs.append(f"已删除图片: {file_name}{ext}")
+                        logs.append(f"Deleted image: {file_name}{ext}")
                         deleted_count += 1
                     except Exception as e:
-                        logs.append(f"删除失败 {file_name}: {e}")
+                        logs.append(f"Failed to delete {file_name}: {e}")
                     break
         
         for name in orphan2:
@@ -80,31 +80,31 @@ class OrphanCleaner:
                 if file_name == name:
                     try:
                         os.remove(file_path)
-                        logs.append(f"已删除TXT: {file_name}{ext}")
+                        logs.append(f"Deleted TXT: {file_name}{ext}")
                         deleted_count += 1
                     except Exception as e:
-                        logs.append(f"删除失败 {file_name}: {e}")
+                        logs.append(f"Failed to delete {file_name}: {e}")
                     break
         
         return deleted_count, logs
     
     def move_orphans(self, orphan1: Set[str], orphan2: Set[str], backup_folder: str) -> Tuple[int, List[str]]:
-        """移动孤立文件到备份文件夹
+        """Move orphan files to backup folder
         
         Args:
-            orphan1: 孤立图片名称集合
-            orphan2: 孤立TXT名称集合
-            backup_folder: 备份目标文件夹
+            orphan1: Set of orphan image names
+            orphan2: Set of orphan TXT names
+            backup_folder: Backup destination folder
         
         Returns:
-            (移动数量, 日志消息列表)
+            (moved_count, log_messages)
         """
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         backup_path = os.path.join(backup_folder, f"orphans_backup_{timestamp}")
         os.makedirs(backup_path, exist_ok=True)
         
         moved_count = 0
-        logs = [f"备份目录: {backup_path}"]
+        logs = [f"Backup directory: {backup_path}"]
         
         for name in orphan1:
             for file_path, file_name, ext in self.folder1_files:
@@ -112,10 +112,10 @@ class OrphanCleaner:
                     try:
                         dest_path = os.path.join(backup_path, f"{file_name}{ext}")
                         shutil.move(file_path, dest_path)
-                        logs.append(f"已移动图片: {file_name}{ext}")
+                        logs.append(f"Moved image: {file_name}{ext}")
                         moved_count += 1
                     except Exception as e:
-                        logs.append(f"移动失败 {file_name}: {e}")
+                        logs.append(f"Failed to move {file_name}: {e}")
                     break
         
         for name in orphan2:
@@ -124,10 +124,10 @@ class OrphanCleaner:
                     try:
                         dest_path = os.path.join(backup_path, f"{file_name}{ext}")
                         shutil.move(file_path, dest_path)
-                        logs.append(f"已移动TXT: {file_name}{ext}")
+                        logs.append(f"Moved TXT: {file_name}{ext}")
                         moved_count += 1
                     except Exception as e:
-                        logs.append(f"移动失败 {file_name}: {e}")
+                        logs.append(f"Failed to move {file_name}: {e}")
                     break
         
         return moved_count, logs

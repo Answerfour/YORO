@@ -1,4 +1,4 @@
-"""线程池工具模块 - 提供后台任务执行能力"""
+"""ThreadPool Utility Module - Provides background task execution capabilities"""
 import threading
 from concurrent.futures import ThreadPoolExecutor, Future
 from typing import Callable, Any, Optional
@@ -6,7 +6,7 @@ from threading import Event
 
 
 class TaskFuture:
-    """任务Future封装"""
+    """Task future wrapper"""
     
     def __init__(self, future: Future, cancel_event: Event):
         self._future = future
@@ -32,7 +32,7 @@ class TaskFuture:
 
 
 class ThreadPool:
-    """线程池管理器 - 单例模式"""
+    """Thread pool manager - Singleton pattern"""
     
     _instance = None
     _lock = threading.Lock()

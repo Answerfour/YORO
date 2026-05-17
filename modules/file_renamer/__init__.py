@@ -1,4 +1,4 @@
-"""file_renamer模块 - 文件重命名模块"""
+"""file_renamer module - File renaming module"""
 from .gui import FileRenamerGUI
 from .renamer import FileRenamer
 

@@ -1,4 +1,4 @@
-"""frame_extractor模块 - 视频切帧模块"""
+"""frame_extractor module - Video frame extraction module"""
 from .gui import FrameExtractorGUI
 from .extractor import FrameExtractor
 

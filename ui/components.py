@@ -1,13 +1,13 @@
-"""UI组件模块 - 提供公共UI组件"""
+"""UI Components Module - Provides common UI components"""
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox, scrolledtext
 from typing import Optional, Callable
 
 
 class FileSelectionFrame(ttk.Frame):
-    """文件选择框架组件"""
+    """File selection frame component"""
     
-    def __init__(self, parent, label_text: str, button_text: str = "浏览...",
+    def __init__(self, parent, label_text: str, button_text: str = "Browse...",
                  file_types: Optional[list] = None, mode: str = "file", **kwargs):
         super().__init__(parent, **kwargs)
         
@@ -20,13 +20,13 @@ class FileSelectionFrame(ttk.Frame):
         ttk.Button(self, text=button_text, command=self.select_path).pack(side=tk.LEFT, padx=5)
         
         if mode == "folder":
-            ttk.Button(self, text="刷新", command=self.refresh_callback).pack(side=tk.LEFT, padx=2) if hasattr(self, 'refresh_callback') else None
+            ttk.Button(self, text="Refresh", command=self.refresh_callback).pack(side=tk.LEFT, padx=2) if hasattr(self, 'refresh_callback') else None
     
     def select_path(self):
         if self.mode == "file":
-            path = filedialog.askopenfilename(title="选择文件", filetypes=self.file_types or [("所有文件", "*.*")])
+            path = filedialog.askopenfilename(title="Select file", filetypes=self.file_types or [("All files", "*.*")])
         else:
-            path = filedialog.askdirectory(title="选择文件夹")
+            path = filedialog.askdirectory(title="Select folder")
         
         if path:
             self.path_var.set(path)
@@ -39,19 +39,19 @@ class FileSelectionFrame(ttk.Frame):
 
 
 class DirectorySelectionFrame(FileSelectionFrame):
-    """目录选择框架组件"""
+    """Directory selection frame component"""
     
-    def __init__(self, parent, label_text: str, button_text: str = "浏览...", **kwargs):
+    def __init__(self, parent, label_text: str, button_text: str = "Browse...", **kwargs):
         super().__init__(parent, label_text, button_text, mode="directory", **kwargs)
 
 
 class LogFrame(ttk.Frame):
-    """日志显示框架组件"""
+    """Log display frame component"""
     
     def __init__(self, parent, height: int = 8, **kwargs):
         super().__init__(parent, **kwargs)
         
-        ttk.Label(self, text="运行日志:").pack(anchor=tk.W)
+        ttk.Label(self, text="Running Log:").pack(anchor=tk.W)
         
         self.text_widget = scrolledtext.ScrolledText(
             self, height=height, wrap=tk.WORD, font=("Consolas", 9)
@@ -69,7 +69,7 @@ class LogFrame(ttk.Frame):
 
 
 class ProgressFrame(ttk.Frame):
-    """进度显示框架组件"""
+    """Progress display frame component"""
     
     def __init__(self, parent, **kwargs):
         super().__init__(parent, **kwargs)
@@ -93,9 +93,9 @@ class ProgressFrame(ttk.Frame):
 
 
 class StatusBar(ttk.Frame):
-    """状态栏组件"""
+    """Status bar component"""
     
-    def __init__(self, parent, initial_text: str = "就绪", **kwargs):
+    def __init__(self, parent, initial_text: str = "Ready", **kwargs):
         super().__init__(parent, **kwargs)
         
         self.status_var = tk.StringVar(value=initial_text)
@@ -109,7 +109,7 @@ class StatusBar(ttk.Frame):
 
 
 class ConfirmationDialog:
-    """确认对话框"""
+    """Confirmation dialog"""
     
     @staticmethod
     def confirm(parent, title: str, message: str) -> bool:

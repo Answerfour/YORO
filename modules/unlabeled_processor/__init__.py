@@ -1,4 +1,4 @@
-"""unlabeled_processor模块 - 无标注文件处理模块"""
+"""unlabeled_processor module - Unlabeled file processing module"""
 from .gui import UnlabeledProcessorGUI
 from .processor import UnlabeledProcessor
 

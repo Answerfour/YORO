@@ -1,87 +1,75 @@
-"""核心抽象基类定义 - 提供模块通用接口"""
+"""Core Abstract Base Classes - Provide module common interfaces"""
 from abc import ABC, abstractmethod
-from typing import Optional, List, Tuple
-import tkinter as tk
-from tkinter import ttk
+from typing import List, Tuple, Optional
 
 
 class TaskExecutor(ABC):
-    """任务执行器抽象基类"""
+    """Abstract base class for task executors"""
     
     @abstractmethod
-    def execute(self, **kwargs) -> bool:
-        """执行任务，返回是否成功"""
+    def execute(self) -> bool:
+        """Execute the task and return whether it succeeded"""
         pass
     
     @abstractmethod
-    def cancel(self) -> None:
-        """取消任务"""
+    def cancel(self):
+        """Cancel the task"""
         pass
     
     @property
     @abstractmethod
     def is_running(self) -> bool:
-        """任务是否正在运行"""
+        """Whether the task is currently running"""
         pass
 
 
 class FileProcessor(ABC):
-    """文件处理器抽象基类"""
+    """Abstract base class for file processors"""
     
     @abstractmethod
     def process_file(self, file_path: str) -> bool:
-        """处理单个文件，返回是否成功"""
+        """Process a single file, return whether it succeeded"""
         pass
     
     @abstractmethod
     def process_batch(self, file_paths: List[str]) -> Tuple[int, int]:
-        """批量处理文件，返回 (成功数, 失败数)"""
+        """Process multiple files in batch, return (success_count, failure_count)"""
         pass
 
 
 class BaseModule(ABC):
-    """模块基类 - 定义模块通用接口"""
+    """Base class for modules - defines common module interface"""
     
-    def __init__(self, parent_window: Optional[tk.Tk] = None):
-        self.parent = parent_window
-        self._enabled = True
-        self._widgets: Optional[ttk.Frame] = None
+    def __init__(self):
+        self._is_active = False
     
     @abstractmethod
     def get_name(self) -> str:
-        """获取模块名称"""
+        """Get module name"""
         pass
     
     @abstractmethod
-    def get_widgets(self) -> ttk.Frame:
-        """获取模块的GUI组件"""
+    def get_gui_component(self, parent) -> 'BaseModule':
+        """Get the GUI component for this module"""
         pass
     
     @abstractmethod
-    def validate_inputs(self) -> Tuple[bool, List[str]]:
-        """验证输入，返回 (是否有效, 错误信息列表)"""
+    def validate_input(self) -> Tuple[bool, List[str]]:
+        """Validate input, return (is_valid, error_messages)"""
         pass
     
-    @abstractmethod
-    def on_activate(self) -> None:
-        """模块被激活时调用"""
-        pass
+    def activate(self):
+        """Called when module is activated"""
+        self._is_active = True
     
-    @abstractmethod
-    def on_deactivate(self) -> None:
-        """模块被停用时调用"""
-        pass
+    def deactivate(self):
+        """Called when module is deactivated"""
+        self._is_active = False
     
-    def enable(self) -> None:
-        self._enabled = True
-        
-    def disable(self) -> None:
-        self._enabled = False
-        
     @property
-    def is_enabled(self) -> bool:
-        return self._enabled
+    def is_active(self) -> bool:
+        return self._is_active
     
-    def reset(self) -> None:
-        """重置模块状态"""
+    def reset(self):
+        """Reset module state"""
         pass

@@ -1,4 +1,4 @@
-"""YOLO训练工具集合 - 主程序入口"""
+"""YOLO Training Tools Collection - Main Application Entry"""
 import tkinter as tk
 from tkinter import ttk
 from modules.frame_extractor.gui import FrameExtractorGUI
@@ -10,11 +10,11 @@ from ui.theme import Theme
 
 
 class YOLOToolsApp:
-    """YOLO工具集主应用程序"""
+    """YOLO Training Tools Collection Main Application"""
     
     def __init__(self, root):
         self.root = root
-        self.root.title("YOLO训练工具集合")
+        self.root.title("YOLO Training Tools")
         self.root.geometry("1000x800")
         
         Theme.apply_default_style()
@@ -27,45 +27,45 @@ class YOLOToolsApp:
         self.root.config(menu=menubar)
         
         file_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="文件", menu=file_menu)
-        file_menu.add_command(label="退出", command=self.root.quit)
+        menubar.add_cascade(label="File", menu=file_menu)
+        file_menu.add_command(label="Exit", command=self.root.quit)
         
         help_menu = tk.Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="帮助", menu=help_menu)
-        help_menu.add_command(label="关于", command=self._show_about)
+        menubar.add_cascade(label="Help", menu=help_menu)
+        help_menu.add_command(label="About", command=self._show_about)
     
     def _create_ui(self):
         notebook = ttk.Notebook(self.root)
         notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
         
         self.frame_extractor = FrameExtractorGUI(notebook)
-        notebook.add(self.frame_extractor, text="📹 视频切帧")
+        notebook.add(self.frame_extractor, text="📹 Video Frame Extraction")
         
         self.file_renamer = FileRenamerGUI(notebook)
-        notebook.add(self.file_renamer, text="📝 文件重命名")
+        notebook.add(self.file_renamer, text="📝 Batch Rename")
         
         self.orphan_cleaner = OrphanCleanerGUI(notebook)
-        notebook.add(self.orphan_cleaner, text="🧹 孤立文件清理")
+        notebook.add(self.orphan_cleaner, text="🧹 Orphan File Cleaner")
         
         self.unlabeled_processor = UnlabeledProcessorGUI(notebook)
-        notebook.add(self.unlabeled_processor, text="📋 无标注处理")
+        notebook.add(self.unlabeled_processor, text="📋 Unlabeled Processor")
         
         self.yolo_stats = YOLOStatsGUI(notebook)
-        notebook.add(self.yolo_stats, text="📊 YOLO统计")
+        notebook.add(self.yolo_stats, text="📊 YOLO Statistics")
     
     def _show_about(self):
         from tkinter import messagebox
         messagebox.showinfo(
-            "关于",
-            "YOLO训练工具集合\n\n"
-            "版本: 2.1 (模块化重构版)\n\n"
-            "包含功能:\n"
-            "• 视频切帧工具\n"
-            "• 批量文件重命名\n"
-            "• 孤立文件清理\n"
-            "• 无标注文件处理\n"
-            "• YOLO标注统计\n\n"
-            "基于分层架构设计，模块化开发"
+            "About",
+            "YOLO Training Tools Collection\n\n"
+            "Version: 2.1 (Modular Refactored)\n\n"
+            "Features:\n"
+            "• Video Frame Extraction\n"
+            "• Batch File Rename\n"
+            "• Orphan File Cleaning\n"
+            "• Unlabeled File Processing\n"
+            "• YOLO Annotation Statistics\n\n"
+            "Built with layered architecture design, modular development"
         )
 
 

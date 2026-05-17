@@ -1,4 +1,4 @@
-"""持久化工具模块 - 提供配置的自动保存和加载功能"""
+"""Persistence Utility Module - Provides automatic configuration saving and loading functionality"""
 import json
 import os
 from typing import TypeVar, Generic, Type, Optional, Any
@@ -11,7 +11,7 @@ T = TypeVar('T')
 
 
 class PersistenceManager:
-    """配置持久化管理器 - 单例模式"""
+    """Configuration persistence manager - Singleton pattern"""
     
     _instance = None
     _lock = Lock()
@@ -63,7 +63,7 @@ class PersistenceManager:
                     json.dump(save_data, f, ensure_ascii=False, indent=2)
                 return True
             except Exception as e:
-                print(f"保存配置失败 {file_path}: {e}")
+                print(f"Failed to save config {file_path}: {e}")
                 return False
     
     def load(self, file_path: str, default_factory: Optional[Type[T]] = None) -> Optional[Any]:
@@ -85,7 +85,7 @@ class PersistenceManager:
             else:
                 return data
         except Exception as e:
-            print(f"加载配置失败 {file_path}: {e}")
+            print(f"Failed to load config {file_path}: {e}")
             return default_factory() if default_factory else None
     
     def exists(self, file_path: str) -> bool:

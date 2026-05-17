@@ -1,4 +1,4 @@
-"""日志工具模块 - 提供统一的日志记录功能"""
+"""Logger Utility Module - Provides unified logging functionality"""
 import tkinter as tk
 from datetime import datetime
 from typing import Optional, Callable
@@ -6,7 +6,7 @@ from threading import Lock
 
 
 class Logger:
-    """线程安全的日志记录器，支持UI组件集成"""
+    """Thread-safe logger with UI component integration support"""
     
     _instance = None
     _lock = Lock()

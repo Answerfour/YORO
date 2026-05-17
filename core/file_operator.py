@@ -1,4 +1,4 @@
-"""文件操作工具 - 提供通用文件操作功能"""
+"""File Operation Utilities - Provide common file operation functions"""
 import os
 import glob
 import shutil
@@ -7,19 +7,19 @@ from pathlib import Path
 
 
 class FileOperator:
-    """通用文件操作类"""
+    """Common file operations class"""
     
     @staticmethod
     def get_files_by_extension(folder_path: str, extensions: List[str], recursive: bool = False) -> List[str]:
-        """获取指定扩展名的文件列表
+        """Get list of files with specified extensions
         
         Args:
-            folder_path: 文件夹路径
-            extensions: 扩展名列表，如 ['.txt', '.jpg']
-            recursive: 是否递归搜索子文件夹
+            folder_path: Folder path
+            extensions: List of extensions, e.g. ['.txt', '.jpg']
+            recursive: Whether to search subfolders recursively
         
         Returns:
-            文件路径列表
+            List of file paths
         """
         files = []
         extensions_lower = [ext.lower() if ext.startswith('.') else f".{ext.lower()}" for ext in extensions]
@@ -42,10 +42,10 @@ class FileOperator:
     
     @staticmethod
     def get_image_files(folder_path: str, recursive: bool = False) -> List[Tuple[str, str, str]]:
-        """获取所有图片文件
+        """Get all image files
         
         Returns:
-            列表元素为 (完整路径, 文件名不含扩展名, 扩展名)
+            List of tuples: (full_path, filename_without_extension, extension)
         """
         image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp']
         files = FileOperator.get_files_by_extension(folder_path, image_extensions, recursive)
@@ -60,10 +60,10 @@ class FileOperator:
     
     @staticmethod
     def get_txt_files(folder_path: str, recursive: bool = False) -> List[Tuple[str, str, str]]:
-        """获取所有TXT文件
+        """Get all TXT files
         
         Returns:
-            列表元素为 (完整路径, 文件名不含扩展名, 扩展名)
+            List of tuples: (full_path, filename_without_extension, extension)
         """
         txt_extensions = ['.txt']
         files = FileOperator.get_files_by_extension(folder_path, txt_extensions, recursive)
@@ -78,7 +78,7 @@ class FileOperator:
     
     @staticmethod
     def ensure_directory(path: str) -> bool:
-        """确保目录存在，不存在则创建"""
+        """Ensure directory exists, create if it doesn't"""
         try:
             os.makedirs(path, exist_ok=True)
             return True
@@ -87,21 +87,21 @@ class FileOperator:
     
     @staticmethod
     def safe_delete_file(file_path: str) -> Tuple[bool, str]:
-        """安全删除文件"""
+        """Safely delete a file"""
         try:
             if os.path.exists(file_path):
                 os.remove(file_path)
                 return True, ""
-            return False, "文件不存在"
+            return False, "File does not exist"
         except Exception as e:
             return False, str(e)
     
     @staticmethod
     def safe_move_file(src: str, dst: str, overwrite: bool = False) -> Tuple[bool, str]:
-        """安全移动文件"""
+        """Safely move a file"""
         try:
             if not overwrite and os.path.exists(dst):
-                return False, "目标文件已存在"
+                return False, "Destination file already exists"
             
             FileOperator.ensure_directory(os.path.dirname(dst))
             shutil.move(src, dst)
@@ -111,10 +111,10 @@ class FileOperator:
     
     @staticmethod
     def safe_copy_file(src: str, dst: str, overwrite: bool = False) -> Tuple[bool, str]:
-        """安全复制文件"""
+        """Safely copy a file"""
         try:
             if not overwrite and os.path.exists(dst):
-                return False, "目标文件已存在"
+                return False, "Destination file already exists"
             
             FileOperator.ensure_directory(os.path.dirname(dst))
             shutil.copy2(src, dst)
@@ -124,7 +124,7 @@ class FileOperator:
     
     @staticmethod
     def get_file_size(file_path: str) -> int:
-        """获取文件大小（字节）"""
+        """Get file size in bytes"""
         try:
             return os.path.getsize(file_path)
         except Exception:
@@ -132,7 +132,7 @@ class FileOperator:
     
     @staticmethod
     def format_file_size(size_bytes: int) -> str:
-        """格式化文件大小"""
+        """Format file size for display"""
         for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
             if size_bytes < 1024.0:
                 return f"{size_bytes:.2f} {unit}"
@@ -141,7 +141,7 @@ class FileOperator:
     
     @staticmethod
     def test_directory_writable(path: str) -> Tuple[bool, str]:
-        """测试目录是否可写"""
+        """Test if directory is writable"""
         try:
             test_file = os.path.join(path, "_write_test.tmp")
             with open(test_file, 'w') as f:

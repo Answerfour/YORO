@@ -1,10 +1,20 @@
-"""config模块 - 配置管理模块"""
+"""config module - Configuration management module"""
 from .schema import (
-    OutputFormat, NamingMode, PairingMode,
-    FrameExtractorConfig, RenamerConfig, ClassMappingConfig, AppSettings
+    FrameExtractorConfig,
+    RenamerConfig,
+    ClassMappingConfig,
+    AppSettings,
+    OutputFormat,
+    NamingMode,
+    PairingMode
 )
 
 __all__ = [
-    'OutputFormat', 'NamingMode', 'PairingMode',
-    'FrameExtractorConfig', 'RenamerConfig', 'ClassMappingConfig', 'AppSettings'
+    'FrameExtractorConfig',
+    'RenamerConfig',
+    'ClassMappingConfig',
+    'AppSettings',
+    'OutputFormat',
+    'NamingMode',
+    'PairingMode'
 ]

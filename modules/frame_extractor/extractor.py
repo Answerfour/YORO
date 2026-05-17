@@ -1,4 +1,4 @@
-"""视频切帧核心逻辑"""
+"""Video Frame Extraction Core Logic"""
 try:
     import cv2
     CV2_AVAILABLE = True
@@ -13,7 +13,7 @@ from config.schema import FrameExtractorConfig
 
 
 class FrameExtractor:
-    """视频切帧器"""
+    """Video frame extractor"""
     
     def __init__(self, video_path: str, config: FrameExtractorConfig, output_dir: str):
         self.video_path = video_path
@@ -39,27 +39,27 @@ class FrameExtractor:
             self._message_callback(message, level)
     
     def execute(self) -> Tuple[bool, int, List[str]]:
-        """执行切帧，返回 (是否成功, 提取帧数, 错误列表)"""
+        """Execute frame extraction, returns (success, frames_extracted, errors)"""
         self._running = True
         self._cancel_requested = False
         errors = []
         frames_extracted = 0
         
         if not CV2_AVAILABLE:
-            return False, 0, ["未安装OpenCV库，请运行: pip install opencv-python"]
+            return False, 0, ["OpenCV not installed, please run: pip install opencv-python"]
         
         try:
             cap = cv2.VideoCapture(self.video_path)
             if not cap.isOpened():
-                return False, 0, ["无法打开视频文件"]
+                return False, 0, ["Cannot open video file"]
             
             total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
             fps = cap.get(cv2.CAP_PROP_FPS)
             
             if fps <= 0:
-                return False, 0, ["视频帧率无效"]
+                return False, 0, ["Invalid video FPS"]
             
-            self.report_message(f"视频信息: 总帧数={total_frames}, 帧率={fps:.2f}")
+            self.report_message(f"Video info: Total frames={total_frames}, FPS={fps:.2f}")
             
             start_frame = int(self.config.start_time * fps)
             end_frame = int(self.config.end_time * fps)
@@ -73,7 +73,7 @@ class FrameExtractor:
                 output_path = self.output_dir
             
             os.makedirs(output_path, exist_ok=True)
-            self.report_message(f"输出目录: {output_path}")
+            self.report_message(f"Output directory: {output_path}")
             
             frame_idx = 0
             saved_idx = self.config.start_number
@@ -85,7 +85,7 @@ class FrameExtractor:
             
             while current_frame <= end_frame and cap.isOpened():
                 if self._cancel_requested:
-                    self.report_message("用户取消操作", "warning")
+                    self.report_message("User cancelled operation", "warning")
                     break
                 
                 ret, frame = cap.read()
@@ -99,18 +99,18 @@ class FrameExtractor:
                     if self._save_frame(frame, frame_output_path):
                         frames_extracted += 1
                         saved_idx += 1
-                        self.report_progress(frame_idx, total_to_process, f"处理帧 {current_frame}/{total_frames}")
+                        self.report_progress(frame_idx, total_to_process, f"Processing frame {current_frame}/{total_frames}")
                 
                 current_frame += 1
                 frame_idx += 1
             
             cap.release()
             
-            self.report_message(f"切帧完成: 成功提取 {frames_extracted} 帧", "success")
+            self.report_message(f"Frame extraction completed: {frames_extracted} frames extracted successfully", "success")
             
         except Exception as e:
             errors.append(str(e))
-            self.report_message(f"切帧出错: {e}", "error")
+            self.report_message(f"Frame extraction error: {e}", "error")
         finally:
             self._running = False
         
@@ -118,7 +118,7 @@ class FrameExtractor:
     
     def cancel(self):
         self._cancel_requested = True
-        self.report_message("正在停止...")
+        self.report_message("Stopping...")
     
     @property
     def is_running(self) -> bool:

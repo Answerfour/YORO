@@ -1,4 +1,4 @@
-"""无标注文件处理器核心逻辑"""
+"""Unlabeled File Processor Core Logic"""
 import os
 import shutil
 from datetime import datetime
@@ -7,7 +7,7 @@ from pathlib import Path
 
 
 class UnlabeledProcessor:
-    """处理无标注信息的图片与标签文件"""
+    """Process images and label files without annotation information"""
     
     def __init__(self, main_folder: str):
         self.main_folder = main_folder
@@ -24,20 +24,20 @@ class UnlabeledProcessor:
         self._cancelled = False
     
     def validate_folders(self) -> Tuple[bool, str]:
-        """验证文件夹结构"""
+        """Validate folder structure"""
         if not os.path.exists(self.main_folder):
-            return False, f"主文件夹不存在: {self.main_folder}"
+            return False, f"Main folder does not exist: {self.main_folder}"
         
         if not os.path.exists(self.images_folder):
-            return False, f"images文件夹不存在: {self.images_folder}"
+            return False, f"images folder does not exist: {self.images_folder}"
         
         if not os.path.exists(self.labels_folder):
-            return False, f"labels文件夹不存在: {self.labels_folder}"
+            return False, f"labels folder does not exist: {self.labels_folder}"
         
         return True, ""
     
     def find_empty_labels(self) -> List[str]:
-        """查找所有空标签文件"""
+        """Find all empty label files"""
         empty_labels = []
         
         if not os.path.exists(self.labels_folder):
@@ -53,7 +53,7 @@ class UnlabeledProcessor:
         return empty_labels
     
     def find_matched_images(self, label_filename: str) -> Optional[str]:
-        """找到与标签文件对应的图片"""
+        """Find images corresponding to label files"""
         base_name = os.path.splitext(label_filename)[0]
         image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.gif']
         
@@ -65,19 +65,19 @@ class UnlabeledProcessor:
         return None
     
     def get_all_matched_pairs(self) -> List[Tuple[str, str]]:
-        """获取所有空标签及其对应图片的配对"""
+        """Get all pairs of empty labels and their corresponding images"""
         pairs = []
         for label_file in self.empty_labels:
             image_path = self.find_matched_images(label_file)
             if image_path:
                 pairs.append((label_file, image_path))
             else:
-                self.logs.append(f"警告: 未找到标签 {label_file} 对应的图片")
+                self.logs.append(f"Warning: No matching image found for label {label_file}")
         
         return pairs
     
     def process_move(self) -> Tuple[int, int, List[str]]:
-        """移动模式：将空标签和对应图片移动到unlabeled_files目录"""
+        """Move mode: Move empty labels and corresponding images to unlabeled_files directory"""
         os.makedirs(self.unlabeled_folder, exist_ok=True)
         images_dest = os.path.join(self.unlabeled_folder, "images")
         labels_dest = os.path.join(self.unlabeled_folder, "labels")
@@ -90,7 +90,7 @@ class UnlabeledProcessor:
         
         for label_file in self.empty_labels:
             if self._cancelled:
-                logs.append("操作已取消")
+                logs.append("Operation cancelled")
                 break
             
             label_path = os.path.join(self.labels_folder, label_file)
@@ -99,29 +99,29 @@ class UnlabeledProcessor:
             try:
                 dest_label = os.path.join(labels_dest, label_file)
                 shutil.move(label_path, dest_label)
-                logs.append(f"移动标签: {label_file}")
+                logs.append(f"Moved label: {label_file}")
                 
                 if image_path:
                     dest_image = os.path.join(images_dest, os.path.basename(image_path))
                     shutil.move(image_path, dest_image)
-                    logs.append(f"移动图片: {os.path.basename(image_path)}")
+                    logs.append(f"Moved image: {os.path.basename(image_path)}")
                 
                 processed += 1
             except Exception as e:
-                logs.append(f"移动失败 {label_file}: {str(e)}")
+                logs.append(f"Failed to move {label_file}: {str(e)}")
                 failed += 1
         
         return processed, failed, logs
     
     def process_delete(self) -> Tuple[int, int, List[str]]:
-        """删除模式：直接删除空标签和对应图片"""
+        """Delete mode: Delete empty labels and corresponding images directly"""
         processed = 0
         failed = 0
         logs = []
         
         for label_file in self.empty_labels:
             if self._cancelled:
-                logs.append("操作已取消")
+                logs.append("Operation cancelled")
                 break
             
             label_path = os.path.join(self.labels_folder, label_file)
@@ -129,21 +129,21 @@ class UnlabeledProcessor:
             
             try:
                 os.remove(label_path)
-                logs.append(f"删除标签: {label_file}")
+                logs.append(f"Deleted label: {label_file}")
                 
                 if image_path:
                     os.remove(image_path)
-                    logs.append(f"删除图片: {os.path.basename(image_path)}")
+                    logs.append(f"Deleted image: {os.path.basename(image_path)}")
                 
                 processed += 1
             except Exception as e:
-                logs.append(f"删除失败 {label_file}: {str(e)}")
+                logs.append(f"Failed to delete {label_file}: {str(e)}")
                 failed += 1
         
         return processed, failed, logs
     
     def cancel(self):
-        """取消操作"""
+        """Cancel operation"""
         self._cancelled = True
     
     @property
@@ -151,22 +151,22 @@ class UnlabeledProcessor:
         return self._cancelled
     
     def generate_report(self, processed: int, failed: int) -> str:
-        """生成处理报告"""
+        """Generate processing report"""
         timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         report = [
-            f"处理时间: {timestamp}",
-            f"主文件夹: {self.main_folder}",
-            f"空标签文件数量: {len(self.empty_labels)}",
-            f"成功处理: {processed}",
-            f"处理失败: {failed}",
+            f"Processing time: {timestamp}",
+            f"Main folder: {self.main_folder}",
+            f"Empty label files: {len(self.empty_labels)}",
+            f"Successfully processed: {processed}",
+            f"Failed: {failed}",
             "=" * 50,
-            "操作日志:"
+            "Operation log:"
         ]
         report.extend(self.logs)
         return "\n".join(report)
     
     def save_report(self, report: str, filename: str = None):
-        """保存处理报告到文件"""
+        """Save processing report to file"""
         if filename is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             filename = f"unlabeled_report_{timestamp}.txt"
