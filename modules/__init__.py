@@ -4,11 +4,13 @@ from .orphan_cleaner import OrphanCleanerGUI
 from .frame_extractor import FrameExtractorGUI
 from .yolo_stats import YOLOStatsGUI
 from .unlabeled_processor import UnlabeledProcessorGUI
+from .valid_extractor import ValidExtractorGUI
 
 __all__ = [
     'FileRenamerGUI',
     'OrphanCleanerGUI', 
     'FrameExtractorGUI',
     'YOLOStatsGUI',
-    'UnlabeledProcessorGUI'
+    'UnlabeledProcessorGUI',
+    'ValidExtractorGUI'
 ]

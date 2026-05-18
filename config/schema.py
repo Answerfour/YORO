@@ -20,6 +20,19 @@ class PairingMode(Enum):
     BY_SEQUENCE = "sequence"
 
 
+class ExtractionMethod(Enum):
+    """Validation set file selection method"""
+    RATIO = "ratio"
+    COUNT = "count"
+    MANUAL = "manual"
+
+
+class FileOperationType(Enum):
+    """File operation type for extraction"""
+    COPY = "copy"
+    MOVE = "move"
+
+
 @dataclass
 class FrameExtractorConfig:
     """Video frame extraction configuration"""
@@ -100,4 +113,29 @@ class AppSettings:
         errors = []
         if self.window_width < 600 or self.window_height < 400:
             errors.append("Window size is too small")
+        return errors
+
+
+@dataclass
+class ValidExtractorConfig:
+    """Validation set extraction configuration"""
+    images_dir: str = ""
+    labels_dir: str = ""
+    extraction_method: str = "ratio"
+    extraction_ratio: float = 0.2
+    extraction_count: int = 50
+    manual_selection: List[str] = field(default_factory=list)
+    file_operation: str = "copy"
+    random_seed: Optional[int] = None
+
+    def validate(self) -> List[str]:
+        errors = []
+        if self.extraction_method == "ratio":
+            if not 0.01 <= self.extraction_ratio <= 1.0:
+                errors.append("Extraction ratio must be between 0.01 and 1.0")
+        if self.extraction_method == "count":
+            if self.extraction_count < 1:
+                errors.append("Extraction count must be at least 1")
+        if self.file_operation not in ("copy", "move"):
+            errors.append("File operation must be 'copy' or 'move'")
         return errors

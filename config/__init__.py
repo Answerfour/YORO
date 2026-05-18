@@ -4,9 +4,12 @@ from .schema import (
     RenamerConfig,
     ClassMappingConfig,
     AppSettings,
+    ValidExtractorConfig,
     OutputFormat,
     NamingMode,
-    PairingMode
+    PairingMode,
+    ExtractionMethod,
+    FileOperationType
 )
 
 __all__ = [
@@ -14,7 +17,10 @@ __all__ = [
     'RenamerConfig',
     'ClassMappingConfig',
     'AppSettings',
+    'ValidExtractorConfig',
     'OutputFormat',
     'NamingMode',
-    'PairingMode'
+    'PairingMode',
+    'ExtractionMethod',
+    'FileOperationType'
 ]

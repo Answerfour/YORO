@@ -6,6 +6,7 @@ from modules.file_renamer.gui import FileRenamerGUI
 from modules.orphan_cleaner.gui import OrphanCleanerGUI
 from modules.yolo_stats.gui import YOLOStatsGUI
 from modules.unlabeled_processor.gui import UnlabeledProcessorGUI
+from modules.valid_extractor.gui import ValidExtractorGUI
 from ui.theme import Theme
 
 
@@ -14,7 +15,7 @@ class YOLOToolsApp:
     
     def __init__(self, root):
         self.root = root
-        self.root.title("YOLO Training Tools")
+        self.root.title("YORO-You Only Run Once")
         self.root.geometry("1000x800")
         
         Theme.apply_default_style()
@@ -52,19 +53,23 @@ class YOLOToolsApp:
         
         self.yolo_stats = YOLOStatsGUI(notebook)
         notebook.add(self.yolo_stats, text="📊 YOLO Statistics")
+        
+        self.valid_extractor = ValidExtractorGUI(notebook)
+        notebook.add(self.valid_extractor, text="✅ Validation Set Extractor")
     
     def _show_about(self):
         from tkinter import messagebox
         messagebox.showinfo(
             "About",
             "YOLO Training Tools Collection\n\n"
-            "Version: 2.1 (Modular Refactored)\n\n"
+            "Version: 2.2 (Modular Refactored)\n\n"
             "Features:\n"
             "• Video Frame Extraction\n"
             "• Batch File Rename\n"
             "• Orphan File Cleaning\n"
             "• Unlabeled File Processing\n"
-            "• YOLO Annotation Statistics\n\n"
+            "• YOLO Annotation Statistics\n"
+            "• Validation Set Extraction\n\n"
             "Built with layered architecture design, modular development"
         )
 
