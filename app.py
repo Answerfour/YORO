@@ -7,6 +7,7 @@ from modules.orphan_cleaner.gui import OrphanCleanerGUI
 from modules.yolo_stats.gui import YOLOStatsGUI
 from modules.unlabeled_processor.gui import UnlabeledProcessorGUI
 from modules.valid_extractor.gui import ValidExtractorGUI
+from modules.yolo_trainer.gui import YOLOTrainerGUI
 from ui.theme import Theme
 
 
@@ -56,20 +57,24 @@ class YOLOToolsApp:
         
         self.valid_extractor = ValidExtractorGUI(notebook)
         notebook.add(self.valid_extractor, text="✅ Validation Set Extractor")
+        
+        self.yolo_trainer = YOLOTrainerGUI(notebook)
+        notebook.add(self.yolo_trainer, text="🚀 YOLO Trainer")
     
     def _show_about(self):
         from tkinter import messagebox
         messagebox.showinfo(
             "About",
             "YOLO Training Tools Collection\n\n"
-            "Version: 2.2 (Modular Refactored)\n\n"
+            "Version: 2.3 (Modular Refactored)\n\n"
             "Features:\n"
             "• Video Frame Extraction\n"
             "• Batch File Rename\n"
             "• Orphan File Cleaning\n"
             "• Unlabeled File Processing\n"
             "• YOLO Annotation Statistics\n"
-            "• Validation Set Extraction\n\n"
+            "• Validation Set Extraction\n"
+            "• YOLO Model Training\n\n"
             "Built with layered architecture design, modular development"
         )
 

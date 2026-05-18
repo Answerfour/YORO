@@ -5,6 +5,7 @@ from .frame_extractor import FrameExtractorGUI
 from .yolo_stats import YOLOStatsGUI
 from .unlabeled_processor import UnlabeledProcessorGUI
 from .valid_extractor import ValidExtractorGUI
+from .yolo_trainer import YOLOTrainerGUI
 
 __all__ = [
     'FileRenamerGUI',
@@ -12,5 +13,6 @@ __all__ = [
     'FrameExtractorGUI',
     'YOLOStatsGUI',
     'UnlabeledProcessorGUI',
-    'ValidExtractorGUI'
+    'ValidExtractorGUI',
+    'YOLOTrainerGUI'
 ]
