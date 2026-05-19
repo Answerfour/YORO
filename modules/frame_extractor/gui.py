@@ -48,12 +48,15 @@ class FrameExtractorGUI(ttk.Frame):
         list_frame.pack(fill=tk.BOTH, expand=True)
         
         btn_bar = ttk.Frame(list_frame)
-        btn_bar.pack(fill=tk.X, pady=(0, 10))
+        btn_bar.pack(fill=tk.X, pady=(0, 5))
         
         ttk.Button(btn_bar, text="Add Videos", command=self._add_videos).pack(side=tk.LEFT, padx=2)
         ttk.Button(btn_bar, text="Add Folder", command=self._add_folder).pack(side=tk.LEFT, padx=2)
         ttk.Button(btn_bar, text="Clear List", command=self._clear_list).pack(side=tk.LEFT, padx=2)
         ttk.Button(btn_bar, text="Remove Selected", command=self._remove_selected).pack(side=tk.LEFT, padx=2)
+        
+        self.video_info_label = ttk.Label(list_frame, text="0 videos", foreground="blue")
+        self.video_info_label.pack(fill=tk.X, pady=(0, 5))
         
         scroll_y = ttk.Scrollbar(list_frame)
         scroll_y.pack(side=tk.RIGHT, fill=tk.Y)
@@ -62,9 +65,6 @@ class FrameExtractorGUI(ttk.Frame):
                                         selectmode=tk.EXTENDED, height=12)
         self.video_listbox.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
         scroll_y.config(command=self.video_listbox.yview)
-        
-        self.video_info_label = ttk.Label(list_frame, text="0 videos", foreground="blue")
-        self.video_info_label.pack(pady=(10, 0))
     
     def _create_settings(self, parent):
         output_frame = ttk.LabelFrame(parent, text="Output Settings", padding="10")
