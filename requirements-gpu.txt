@@ -1,0 +1,10 @@
+# GPU版本依赖
+# 使用方法: pip install -r requirements-gpu.txt
+
+# 使用 extra-index-url 添加 PyTorch 仓库作为额外源
+--extra-index-url https://download.pytorch.org/whl/cu126
+torch==2.6.0
+torchvision==0.21.0
+
+# 继承通用依赖（这些会从默认 PyPI 仓库安装）
+-r requirements-base.txt

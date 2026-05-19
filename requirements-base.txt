@@ -1,0 +1,5 @@
+# 通用依赖（不含PyTorch/PyTorchVision，让平台专用文件指定）
+ultralytics>=8.0.0             # YOLO训练框架
+opencv-python>=4.5.0           # 视频切帧功能必需
+numpy>=1.20.0                  # OpenCV和PyTorch依赖
+pytest>=6.0.0                  # 单元测试框架
