@@ -32,8 +32,8 @@ class FileRenamerGUI(ttk.Frame):
         
         ttk.Label(param_frame, text="File Type:").grid(row=0, column=0, sticky=tk.W, padx=5, pady=5)
         self.file_type_var = tk.StringVar(value="txt")
-        ttk.Radiobutton(param_frame, text="TXT Files (.txt)", variable=self.file_type_var, value="txt").grid(row=0, column=1, sticky=tk.W, padx=5)
-        ttk.Radiobutton(param_frame, text="Image Files (jpg/png/gif/bmp/tiff/webp)", variable=self.file_type_var, value="image").grid(row=0, column=2, sticky=tk.W, padx=5)
+        ttk.Radiobutton(param_frame, text="Text (.txt)", variable=self.file_type_var, value="txt").grid(row=0, column=1, sticky=tk.W, padx=5)
+        ttk.Radiobutton(param_frame, text="Images (.jpg/.png/.gif/.bmp/.tiff/.webp)", variable=self.file_type_var, value="image").grid(row=0, column=2, sticky=tk.W, padx=5)
         
         ttk.Label(param_frame, text="Start Number:").grid(row=1, column=0, sticky=tk.W, padx=5, pady=5)
         self.start_number_var = tk.IntVar(value=1)

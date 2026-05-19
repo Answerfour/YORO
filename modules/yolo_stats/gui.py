@@ -75,11 +75,11 @@ class YOLOStatsGUI(ttk.Frame):
         edit_frame.pack(side=tk.RIGHT, fill=tk.Y, padx=10, pady=5)
         
         ttk.Label(edit_frame, text="ID:").grid(row=0, column=0, sticky=tk.W, pady=2)
-        self.entry_id = ttk.Entry(edit_frame, width=10)
+        self.entry_id = ttk.Entry(edit_frame, width=8)
         self.entry_id.grid(row=0, column=1, pady=2)
         
         ttk.Label(edit_frame, text="Name:").grid(row=1, column=0, sticky=tk.W, pady=2)
-        self.entry_name = ttk.Entry(edit_frame, width=15)
+        self.entry_name = ttk.Entry(edit_frame, width=12)
         self.entry_name.grid(row=1, column=1, pady=2)
         
         ttk.Button(edit_frame, text="Add/Update", command=self._add_or_update_class).grid(row=2, column=0, columnspan=2, pady=5)

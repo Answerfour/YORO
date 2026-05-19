@@ -49,10 +49,11 @@ class UnlabeledProcessorGUI(ttk.Frame):
         
         self.process_mode = tk.StringVar(value="move")
         
-        ttk.Radiobutton(options_frame, text="Move Mode - Move files to unlabeled_files directory",
-                        variable=self.process_mode, value="move").pack(anchor=tk.W, padx=5)
-        ttk.Radiobutton(options_frame, text="Delete Mode - Delete files directly (requires confirmation)",
-                        variable=self.process_mode, value="delete").pack(anchor=tk.W, padx=5)
+        mode_frame = ttk.Frame(options_frame)
+        mode_frame.pack(fill=tk.X)
+        
+        ttk.Radiobutton(mode_frame, text="Move: Move files to unlabeled_files/", variable=self.process_mode, value="move").pack(side=tk.LEFT, padx=10)
+        ttk.Radiobutton(mode_frame, text="Delete: Remove files directly (requires confirmation)", variable=self.process_mode, value="delete").pack(side=tk.LEFT, padx=10)
         
         self.auto_save_report = tk.BooleanVar(value=True)
         ttk.Checkbutton(options_frame, text="Auto save processing report",
@@ -62,13 +63,13 @@ class UnlabeledProcessorGUI(ttk.Frame):
         button_frame = ttk.Frame(parent)
         button_frame.pack(pady=10)
         
-        self.start_btn = ttk.Button(button_frame, text="▶ Start Processing", command=self._start_process, width=15)
+        self.start_btn = ttk.Button(button_frame, text="▶ Start Processing", command=self._start_process)
         self.start_btn.pack(side=tk.LEFT, padx=5)
         
-        self.cancel_btn = ttk.Button(button_frame, text="Cancel", command=self._cancel_process, width=8, state="disabled")
+        self.cancel_btn = ttk.Button(button_frame, text="Cancel", command=self._cancel_process, state="disabled")
         self.cancel_btn.pack(side=tk.LEFT, padx=5)
         
-        self.refresh_btn = ttk.Button(button_frame, text="Refresh Scan", command=self._scan_files, width=10)
+        self.refresh_btn = ttk.Button(button_frame, text="Refresh Scan", command=self._scan_files)
         self.refresh_btn.pack(side=tk.LEFT, padx=5)
     
     def _create_progress(self, parent):

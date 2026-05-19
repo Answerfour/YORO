@@ -148,10 +148,10 @@ class FrameExtractorGUI(ttk.Frame):
         button_frame = ttk.Frame(parent)
         button_frame.pack(pady=10)
         
-        self.extract_btn = ttk.Button(button_frame, text="▶ Start Extraction", command=self._start_extraction, width=15)
+        self.extract_btn = ttk.Button(button_frame, text="▶ Start Extraction", command=self._start_extraction)
         self.extract_btn.pack(side=tk.LEFT, padx=5)
         
-        ttk.Button(button_frame, text="Stop", command=self._stop_extraction, width=8).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Stop", command=self._stop_extraction).pack(side=tk.LEFT, padx=5)
     
     def _create_log(self, parent):
         log_frame = ttk.LabelFrame(parent, text="Log", padding="10")

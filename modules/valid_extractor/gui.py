@@ -145,19 +145,22 @@ class ValidExtractorGUI(ttk.Frame):
     def _create_buttons(self, parent):
         button_frame = ttk.Frame(parent)
         button_frame.pack(pady=10)
+        button_frame.columnconfigure(0, weight=1)
+        button_frame.columnconfigure(1, weight=1)
+        button_frame.columnconfigure(2, weight=1)
+        button_frame.columnconfigure(3, weight=1)
         
-        row1_frame = ttk.Frame(button_frame)
-        row1_frame.pack(fill=tk.X, pady=2)
-        ttk.Button(row1_frame, text="Scan Directories", command=self._scan_directories, width=15).pack(side=tk.LEFT, padx=3)
-        ttk.Button(row1_frame, text="Generate Preview", command=self._generate_preview, width=15).pack(side=tk.LEFT, padx=3)
-        ttk.Button(row1_frame, text="Execute Extraction", command=self._execute_extraction, width=15).pack(side=tk.LEFT, padx=3)
-        ttk.Button(row1_frame, text="Validate Result", command=self._validate_extraction, width=15).pack(side=tk.LEFT, padx=3)
+        ttk.Button(button_frame, text="Scan Directories", command=self._scan_directories).grid(row=0, column=0, sticky=tk.EW, padx=3)
+        ttk.Button(button_frame, text="Generate Preview", command=self._generate_preview).grid(row=0, column=1, sticky=tk.EW, padx=3)
+        ttk.Button(button_frame, text="Execute", command=self._execute_extraction).grid(row=0, column=2, sticky=tk.EW, padx=3)
+        ttk.Button(button_frame, text="Validate", command=self._validate_extraction).grid(row=0, column=3, sticky=tk.EW, padx=3)
         
-        row2_frame = ttk.Frame(button_frame)
-        row2_frame.pack(fill=tk.X, pady=2)
-        ttk.Button(row2_frame, text="Save Config", command=self._save_config, width=12).pack(side=tk.LEFT, padx=3)
-        ttk.Button(row2_frame, text="Load Config", command=self._load_config, width=12).pack(side=tk.LEFT, padx=3)
-        ttk.Button(row2_frame, text="Clear Log", command=self._clear_log, width=10).pack(side=tk.LEFT, padx=3)
+        btn2_frame = ttk.Frame(button_frame)
+        btn2_frame.grid(row=1, column=0, columnspan=4, sticky=tk.EW, pady=(5, 0))
+        
+        ttk.Button(btn2_frame, text="Save Config", command=self._save_config).pack(side=tk.LEFT, padx=3)
+        ttk.Button(btn2_frame, text="Load Config", command=self._load_config).pack(side=tk.LEFT, padx=3)
+        ttk.Button(btn2_frame, text="Clear Log", command=self._clear_log).pack(side=tk.LEFT, padx=3)
 
     def _create_log(self, parent):
         log_frame = ttk.Frame(parent)

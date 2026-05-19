@@ -59,10 +59,10 @@ class OrphanCleanerGUI(ttk.Frame):
         button_frame = ttk.Frame(parent)
         button_frame.pack(pady=10)
         
-        ttk.Button(button_frame, text="Scan and Analyze", command=self._scan_and_analyze, width=15).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Delete Orphans", command=self._delete_orphans, width=15).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Move Orphans", command=self._move_orphans, width=15).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Clear Log", command=self._clear_log, width=12).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Scan and Analyze", command=self._scan_and_analyze).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Delete Orphans", command=self._delete_orphans).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Move Orphans", command=self._move_orphans).pack(side=tk.LEFT, padx=5)
+        ttk.Button(button_frame, text="Clear Log", command=self._clear_log).pack(side=tk.LEFT, padx=5)
     
     def _create_results(self, parent):
         result_frame = ttk.LabelFrame(parent, text="Analysis Results", padding="10")
