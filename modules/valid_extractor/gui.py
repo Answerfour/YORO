@@ -146,13 +146,18 @@ class ValidExtractorGUI(ttk.Frame):
         button_frame = ttk.Frame(parent)
         button_frame.pack(pady=10)
         
-        ttk.Button(button_frame, text="Scan Directories", command=self._scan_directories, width=18).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Generate Preview", command=self._generate_preview, width=18).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Execute Extraction", command=self._execute_extraction, width=18).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Validate Result", command=self._validate_extraction, width=18).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Save Config", command=self._save_config, width=12).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Load Config", command=self._load_config, width=12).pack(side=tk.LEFT, padx=5)
-        ttk.Button(button_frame, text="Clear Log", command=self._clear_log, width=10).pack(side=tk.LEFT, padx=5)
+        row1_frame = ttk.Frame(button_frame)
+        row1_frame.pack(fill=tk.X, pady=2)
+        ttk.Button(row1_frame, text="Scan Directories", command=self._scan_directories, width=15).pack(side=tk.LEFT, padx=3)
+        ttk.Button(row1_frame, text="Generate Preview", command=self._generate_preview, width=15).pack(side=tk.LEFT, padx=3)
+        ttk.Button(row1_frame, text="Execute Extraction", command=self._execute_extraction, width=15).pack(side=tk.LEFT, padx=3)
+        ttk.Button(row1_frame, text="Validate Result", command=self._validate_extraction, width=15).pack(side=tk.LEFT, padx=3)
+        
+        row2_frame = ttk.Frame(button_frame)
+        row2_frame.pack(fill=tk.X, pady=2)
+        ttk.Button(row2_frame, text="Save Config", command=self._save_config, width=12).pack(side=tk.LEFT, padx=3)
+        ttk.Button(row2_frame, text="Load Config", command=self._load_config, width=12).pack(side=tk.LEFT, padx=3)
+        ttk.Button(row2_frame, text="Clear Log", command=self._clear_log, width=10).pack(side=tk.LEFT, padx=3)
 
     def _create_log(self, parent):
         log_frame = ttk.Frame(parent)
