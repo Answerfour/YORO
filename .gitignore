@@ -45,5 +45,28 @@ htmlcov/
 *.tmp
 *.temp
 
-#trae
+# trae
 .trae
+
+# ============================================
+# Project-specific ignores
+# ============================================
+
+# Dataset files (large data files)
+datasets/
+
+# Runtime output (training results, logs, etc.)
+runs/
+output/
+
+# Model files (large binary files)
+yolo12s.*
+yolo26npt.*
+*.pt
+*.pth
+*.onnx
+
+# Training artifacts
+weights/
+best.pt
+last.pt
