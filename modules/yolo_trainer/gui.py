@@ -363,7 +363,11 @@ class YOLOTrainerGUI(ttk.Frame):
         params = self._get_params()
         results = self.trainer.train(params)
         
-        self._root().after(0, lambda: self._on_training_complete(results))
+        try:
+            root = self._root()
+            root.after(0, lambda: self._on_training_complete(results))
+        except Exception:
+            self._on_training_complete(results)
 
     def _on_training_complete(self, results):
         if results['success']:
@@ -378,7 +382,11 @@ class YOLOTrainerGUI(ttk.Frame):
         self._on_training_end()
 
     def _on_training_message(self, message):
-        self._root().after(0, lambda: self._log(message))
+        try:
+            root = self._root()
+            root.after(0, lambda: self._log(message))
+        except Exception:
+            self._log(message)
 
     def _on_training_end(self):
         self.is_training = False
@@ -458,5 +466,11 @@ class YOLOTrainerGUI(ttk.Frame):
         self.log_text.config(state=tk.DISABLED)
 
     def _root(self):
-        """Get the root window"""
-        return self.winfo_toplevel()
+        """Get the root window with safety check"""
+        try:
+            root = self.winfo_toplevel()
+            if root is None:
+                return self
+            return root
+        except Exception:
+            return self
