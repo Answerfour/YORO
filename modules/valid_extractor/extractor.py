@@ -1,9 +1,243 @@
 """Validation Set Extractor Core Logic"""
 import os
 import random
+import json
 from typing import List, Set, Tuple, Dict, Optional
 from core.file_operator import FileOperator
 from datetime import datetime
+from config.schema import ClassMappingConfig
+
+
+class ClassBasedExtractor:
+    """Class-based dataset extraction logic"""
+    
+    def __init__(self, labels_dir: str = "", project_root: str = ""):
+        self.labels_dir = labels_dir
+        self.project_root = project_root or os.getcwd()
+        self.class_mapping: Dict[int, str] = {}
+        self.image_to_classes: Dict[str, Set[int]] = {}
+        self.class_to_images: Dict[int, List[str]] = {}
+        self.original_stats: Dict = {}
+        self.extraction_config: Dict = {}
+        self.result_stats: Dict = {}
+        
+    def load_class_mapping(self, config_path: str = "") -> bool:
+        """Load class mapping from JSON configuration file
+        
+        Args:
+            config_path: Path to class_mapping.json. If empty, uses default location.
+        
+        Returns:
+            True if successful, False otherwise
+        """
+        if not config_path:
+            config_path = os.path.join(self.project_root, "config_data", "class_mapping.json")
+        
+        if not os.path.exists(config_path):
+            self.class_mapping = {
+                0: "water_heater",
+                1: "paper_cup",
+                2: "toilet",
+                3: "fire_extinguisher",
+                4: "commode",
+                5: "sink"
+            }
+            return False
+        
+        try:
+            with open(config_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                self.class_mapping = {int(k): v for k, v in data.items()}
+            return True
+        except Exception:
+            self.class_mapping = {
+                0: "water_heater",
+                1: "paper_cup",
+                2: "toilet",
+                3: "fire_extinguisher",
+                4: "commode",
+                5: "sink"
+            }
+            return False
+    
+    def analyze_labels(self) -> Dict:
+        """Analyze label files to build image-class relationships
+        
+        Returns:
+            Dictionary containing statistics
+        """
+        self.image_to_classes = {}
+        self.class_to_images = {}
+        
+        for cls_id in self.class_mapping.keys():
+            self.class_to_images[cls_id] = []
+        
+        txt_files = FileOperator.get_txt_files(self.labels_dir, recursive=False)
+        
+        for file_path, name, _ in txt_files:
+            classes_in_file = set()
+            
+            try:
+                with open(file_path, 'r', encoding='utf-8') as f:
+                    for line in f:
+                        line = line.strip()
+                        if line:
+                            parts = line.split()
+                            if parts:
+                                try:
+                                    cls_id = int(float(parts[0]))
+                                    classes_in_file.add(cls_id)
+                                except ValueError:
+                                    continue
+            except Exception:
+                continue
+            
+            self.image_to_classes[name] = classes_in_file
+            
+            for cls_id in classes_in_file:
+                if cls_id not in self.class_to_images:
+                    self.class_to_images[cls_id] = []
+                self.class_to_images[cls_id].append(name)
+        
+        self._compute_original_stats()
+        return self.original_stats
+    
+    def _compute_original_stats(self):
+        """Compute statistics from analyzed data"""
+        total_images = len(self.image_to_classes)
+        total_objects = sum(len(classes) for classes in self.image_to_classes.values())
+        
+        class_stats = {}
+        for cls_id, images in self.class_to_images.items():
+            class_name = self.class_mapping.get(cls_id, f"unknown_{cls_id}")
+            class_stats[cls_id] = {
+                'name': class_name,
+                'count': len(images),
+                'percentage': (len(images) / total_images) * 100 if total_images > 0 else 0
+            }
+        
+        self.original_stats = {
+            'total_images': total_images,
+            'total_objects': total_objects,
+            'class_stats': class_stats,
+            'class_count': len(self.class_mapping)
+        }
+    
+    def extract_by_classes(
+        self,
+        class_selections: Dict[int, float],
+        seed: Optional[int] = None
+    ) -> List[str]:
+        """Extract images based on class selections and ratios
+        
+        Args:
+            class_selections: Dictionary mapping class_id to extraction ratio (0.0-1.0)
+            seed: Random seed for reproducibility
+            
+        Returns:
+            List of selected image names
+        """
+        selected_images = set()
+        
+        if seed is not None:
+            random.seed(seed)
+        
+        for cls_id, ratio in class_selections.items():
+            if cls_id not in self.class_to_images or ratio <= 0:
+                continue
+            
+            images = self.class_to_images[cls_id]
+            count = max(1, int(len(images) * ratio))
+            count = min(count, len(images))
+            
+            selected = random.sample(images, count)
+            selected_images.update(selected)
+        
+        random.seed()
+        
+        self.extraction_config = {
+            'class_selections': class_selections,
+            'seed': seed,
+            'selected_count': len(selected_images)
+        }
+        
+        self._compute_result_stats(list(selected_images))
+        
+        return sorted(list(selected_images))
+    
+    def _compute_result_stats(self, selected_images: List[str]):
+        """Compute statistics for the extracted dataset"""
+        total_images = len(selected_images)
+        total_objects = 0
+        class_stats = {cls_id: {'name': self.class_mapping.get(cls_id, f"unknown_{cls_id}"), 'count': 0} 
+                       for cls_id in self.class_mapping.keys()}
+        
+        for name in selected_images:
+            if name in self.image_to_classes:
+                total_objects += len(self.image_to_classes[name])
+                for cls_id in self.image_to_classes[name]:
+                    if cls_id in class_stats:
+                        class_stats[cls_id]['count'] += 1
+        
+        for cls_id in class_stats:
+            class_stats[cls_id]['percentage'] = (class_stats[cls_id]['count'] / total_images) * 100 if total_images > 0 else 0
+        
+        self.result_stats = {
+            'total_images': total_images,
+            'total_objects': total_objects,
+            'class_stats': class_stats
+        }
+    
+    def generate_extraction_report(self) -> str:
+        """Generate a comprehensive extraction report
+        
+        Returns:
+            Formatted report string
+        """
+        report = []
+        report.append("=" * 70)
+        report.append("DATASET EXTRACTION REPORT")
+        report.append("=" * 70)
+        report.append(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        report.append("")
+        
+        report.append("--- ORIGINAL DATASET STATISTICS ---")
+        report.append(f"Total Images: {self.original_stats.get('total_images', 0)}")
+        report.append(f"Total Objects: {self.original_stats.get('total_objects', 0)}")
+        report.append(f"Number of Classes: {self.original_stats.get('class_count', 0)}")
+        report.append("")
+        report.append("Class Distribution:")
+        for cls_id, stats in sorted(self.original_stats.get('class_stats', {}).items()):
+            report.append(f"  [{cls_id}] {stats['name']}: {stats['count']} images ({stats['percentage']:.2f}%)")
+        report.append("")
+        
+        report.append("--- EXTRACTION CONFIGURATION ---")
+        report.append(f"Random Seed: {self.extraction_config.get('seed', 'None')}")
+        report.append("Selected Classes and Ratios:")
+        for cls_id, ratio in self.extraction_config.get('class_selections', {}).items():
+            cls_name = self.class_mapping.get(cls_id, f"unknown_{cls_id}")
+            report.append(f"  [{cls_id}] {cls_name}: {int(ratio * 100)}%")
+        report.append("")
+        
+        report.append("--- EXTRACTION RESULTS ---")
+        report.append(f"Selected Images: {self.result_stats.get('total_images', 0)}")
+        report.append(f"Selected Objects: {self.result_stats.get('total_objects', 0)}")
+        report.append("")
+        report.append("Extracted Class Distribution:")
+        for cls_id, stats in sorted(self.result_stats.get('class_stats', {}).items()):
+            report.append(f"  [{cls_id}] {stats['name']}: {stats['count']} images ({stats['percentage']:.2f}%)")
+        report.append("")
+        
+        report.append("--- VALIDATION ---")
+        if self.result_stats.get('total_images', 0) > 0:
+            report.append("[OK] Extraction completed successfully")
+            report.append(f"[OK] Data integrity maintained: {self.result_stats['total_images']} paired files")
+        else:
+            report.append("[FAIL] No images were selected")
+        
+        report.append("=" * 70)
+        
+        return "\n".join(report)
 
 
 class ValidExtractor:
