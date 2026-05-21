@@ -1,9 +1,8 @@
-"""Validation Set Extractor Module"""
+"""Validation Set Extractor Module - Class-based Extraction"""
 from .gui import ValidExtractorGUI
-from .extractor import ValidExtractor, ClassBasedExtractor
+from .extractor import ValidExtractor
 
 __all__ = [
     'ValidExtractorGUI',
-    'ValidExtractor',
-    'ClassBasedExtractor'
+    'ValidExtractor'
 ]

@@ -1,26 +1,37 @@
-"""Validation Set Extractor Core Logic"""
+"""Validation Set Extractor Core Logic - Class-based Extraction"""
 import os
 import random
 import json
 from typing import List, Set, Tuple, Dict, Optional
 from core.file_operator import FileOperator
 from datetime import datetime
-from config.schema import ClassMappingConfig
 
 
-class ClassBasedExtractor:
-    """Class-based dataset extraction logic"""
-    
-    def __init__(self, labels_dir: str = "", project_root: str = ""):
+class ValidExtractor:
+    """Class-based dataset extractor - extracts paired image/label files based on class selection"""
+
+    IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp']
+    LABEL_EXTENSIONS = ['.txt']
+
+    def __init__(self, images_dir: str = "", labels_dir: str = "", project_root: str = ""):
+        self.images_dir = images_dir
         self.labels_dir = labels_dir
         self.project_root = project_root or os.getcwd()
+        
         self.class_mapping: Dict[int, str] = {}
         self.image_to_classes: Dict[str, Set[int]] = {}
         self.class_to_images: Dict[int, List[str]] = {}
+        
+        self.image_files: List[Tuple[str, str, str]] = []
+        self.label_files: List[Tuple[str, str, str]] = []
+        self.paired_files: Dict[str, Tuple[str, str]] = {}
+        self.unpaired_images: Set[str] = set()
+        self.unpaired_labels: Set[str] = set()
+        
         self.original_stats: Dict = {}
         self.extraction_config: Dict = {}
         self.result_stats: Dict = {}
-        
+
     def load_class_mapping(self, config_path: str = "") -> bool:
         """Load class mapping from JSON configuration file
         
@@ -59,7 +70,30 @@ class ClassBasedExtractor:
                 5: "sink"
             }
             return False
-    
+
+    def scan_directories(self) -> Tuple[int, int]:
+        """Scan images and labels directories, build paired files mapping
+        
+        Returns:
+            (image_count, label_count)
+        """
+        self.image_files = FileOperator.get_image_files(self.images_dir, recursive=False)
+        self.label_files = FileOperator.get_txt_files(self.labels_dir, recursive=False)
+
+        image_names = {f[1] for f in self.image_files}
+        label_names = {f[1] for f in self.label_files}
+
+        self.paired_files = {}
+        for name in image_names & label_names:
+            img_path = next(f[0] for f in self.image_files if f[1] == name)
+            lbl_path = next(f[0] for f in self.label_files if f[1] == name)
+            self.paired_files[name] = (img_path, lbl_path)
+
+        self.unpaired_images = image_names - label_names
+        self.unpaired_labels = label_names - image_names
+
+        return len(self.image_files), len(self.label_files)
+
     def analyze_labels(self) -> Dict:
         """Analyze label files to build image-class relationships
         
@@ -75,6 +109,9 @@ class ClassBasedExtractor:
         txt_files = FileOperator.get_txt_files(self.labels_dir, recursive=False)
         
         for file_path, name, _ in txt_files:
+            if name not in self.paired_files:
+                continue
+            
             classes_in_file = set()
             
             try:
@@ -97,18 +134,20 @@ class ClassBasedExtractor:
             for cls_id in classes_in_file:
                 if cls_id not in self.class_to_images:
                     self.class_to_images[cls_id] = []
-                self.class_to_images[cls_id].append(name)
+                if name not in self.class_to_images[cls_id]:
+                    self.class_to_images[cls_id].append(name)
         
         self._compute_original_stats()
         return self.original_stats
-    
+
     def _compute_original_stats(self):
         """Compute statistics from analyzed data"""
-        total_images = len(self.image_to_classes)
+        total_images = len(self.paired_files)
         total_objects = sum(len(classes) for classes in self.image_to_classes.values())
         
         class_stats = {}
-        for cls_id, images in self.class_to_images.items():
+        for cls_id in self.class_mapping.keys():
+            images = self.class_to_images.get(cls_id, [])
             class_name = self.class_mapping.get(cls_id, f"unknown_{cls_id}")
             class_stats[cls_id] = {
                 'name': class_name,
@@ -122,12 +161,49 @@ class ClassBasedExtractor:
             'class_stats': class_stats,
             'class_count': len(self.class_mapping)
         }
-    
+
+    @staticmethod
+    def validate_ratio(ratio: float) -> bool:
+        """Validate extraction ratio is within valid range (0.0 to 1.0)
+        
+        Args:
+            ratio: Extraction ratio to validate
+            
+        Returns:
+            True if valid, False otherwise
+        """
+        return 0.0 <= ratio <= 1.0
+
+    @staticmethod
+    def validate_class_selections(class_selections: Dict[int, float]) -> Tuple[bool, str]:
+        """Validate class selections and ratios
+        
+        Args:
+            class_selections: Dictionary mapping class_id to extraction ratio
+            
+        Returns:
+            (is_valid, error_message)
+        """
+        if not class_selections:
+            return False, "No classes selected"
+        
+        for cls_id, ratio in class_selections.items():
+            if not isinstance(cls_id, int) or cls_id < 0:
+                return False, f"Invalid class ID: {cls_id}"
+            
+            if not isinstance(ratio, (int, float)):
+                return False, f"Invalid ratio type for class {cls_id}: {type(ratio)}"
+            
+            if not ValidExtractor.validate_ratio(ratio):
+                return False, f"Ratio {ratio} for class {cls_id} must be between 0.0 and 1.0"
+        
+        return True, ""
+
     def extract_by_classes(
         self,
         class_selections: Dict[int, float],
         seed: Optional[int] = None
-    ) -> List[str]:
+    ) -> Tuple[List[str], str]:
         """Extract images based on class selections and ratios
         
         Args:
@@ -135,8 +211,12 @@ class ClassBasedExtractor:
             seed: Random seed for reproducibility
             
         Returns:
-            List of selected image names
+            (selected_image_names, error_message)
         """
+        validation_result, error_msg = self.validate_class_selections(class_selections)
+        if not validation_result:
+            return [], error_msg
+        
         selected_images = set()
         
         if seed is not None:
@@ -147,6 +227,9 @@ class ClassBasedExtractor:
                 continue
             
             images = self.class_to_images[cls_id]
+            if not images:
+                continue
+                
             count = max(1, int(len(images) * ratio))
             count = min(count, len(images))
             
@@ -161,10 +244,11 @@ class ClassBasedExtractor:
             'selected_count': len(selected_images)
         }
         
-        self._compute_result_stats(list(selected_images))
+        selected_list = sorted(list(selected_images))
+        self._compute_result_stats(selected_list)
         
-        return sorted(list(selected_images))
-    
+        return selected_list, ""
+
     def _compute_result_stats(self, selected_images: List[str]):
         """Compute statistics for the extracted dataset"""
         total_images = len(selected_images)
@@ -187,102 +271,10 @@ class ClassBasedExtractor:
             'total_objects': total_objects,
             'class_stats': class_stats
         }
-    
-    def generate_extraction_report(self) -> str:
-        """Generate a comprehensive extraction report
-        
-        Returns:
-            Formatted report string
-        """
-        report = []
-        report.append("=" * 70)
-        report.append("DATASET EXTRACTION REPORT")
-        report.append("=" * 70)
-        report.append(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
-        report.append("")
-        
-        report.append("--- ORIGINAL DATASET STATISTICS ---")
-        report.append(f"Total Images: {self.original_stats.get('total_images', 0)}")
-        report.append(f"Total Objects: {self.original_stats.get('total_objects', 0)}")
-        report.append(f"Number of Classes: {self.original_stats.get('class_count', 0)}")
-        report.append("")
-        report.append("Class Distribution:")
-        for cls_id, stats in sorted(self.original_stats.get('class_stats', {}).items()):
-            report.append(f"  [{cls_id}] {stats['name']}: {stats['count']} images ({stats['percentage']:.2f}%)")
-        report.append("")
-        
-        report.append("--- EXTRACTION CONFIGURATION ---")
-        report.append(f"Random Seed: {self.extraction_config.get('seed', 'None')}")
-        report.append("Selected Classes and Ratios:")
-        for cls_id, ratio in self.extraction_config.get('class_selections', {}).items():
-            cls_name = self.class_mapping.get(cls_id, f"unknown_{cls_id}")
-            report.append(f"  [{cls_id}] {cls_name}: {int(ratio * 100)}%")
-        report.append("")
-        
-        report.append("--- EXTRACTION RESULTS ---")
-        report.append(f"Selected Images: {self.result_stats.get('total_images', 0)}")
-        report.append(f"Selected Objects: {self.result_stats.get('total_objects', 0)}")
-        report.append("")
-        report.append("Extracted Class Distribution:")
-        for cls_id, stats in sorted(self.result_stats.get('class_stats', {}).items()):
-            report.append(f"  [{cls_id}] {stats['name']}: {stats['count']} images ({stats['percentage']:.2f}%)")
-        report.append("")
-        
-        report.append("--- VALIDATION ---")
-        if self.result_stats.get('total_images', 0) > 0:
-            report.append("[OK] Extraction completed successfully")
-            report.append(f"[OK] Data integrity maintained: {self.result_stats['total_images']} paired files")
-        else:
-            report.append("[FAIL] No images were selected")
-        
-        report.append("=" * 70)
-        
-        return "\n".join(report)
-
-
-class ValidExtractor:
-    """Validation set extractor - extracts paired image/label files from train set"""
-
-    IMAGE_EXTENSIONS = ['.jpg', '.jpeg', '.png', '.bmp', '.gif', '.tiff', '.webp']
-    LABEL_EXTENSIONS = ['.txt']
-
-    def __init__(self, images_dir: str = "", labels_dir: str = "", project_root: str = ""):
-        self.images_dir = images_dir
-        self.labels_dir = labels_dir
-        self.project_root = project_root or os.getcwd()
-
-        self.image_files: List[Tuple[str, str, str]] = []
-        self.label_files: List[Tuple[str, str, str]] = []
-        self.paired_files: Dict[str, Tuple[str, str]] = {}
-        self.unpaired_images: Set[str] = set()
-        self.unpaired_labels: Set[str] = set()
-
-    def scan_directories(self) -> Tuple[int, int]:
-        """Recursively scan images and labels directories
-
-        Returns:
-            (image_count, label_count)
-        """
-        self.image_files = FileOperator.get_image_files(self.images_dir, recursive=True)
-        self.label_files = FileOperator.get_txt_files(self.labels_dir, recursive=True)
-
-        image_names = {f[1] for f in self.image_files}
-        label_names = {f[1] for f in self.label_files}
-
-        self.paired_files = {}
-        for name in image_names & label_names:
-            img_path = next(f[0] for f in self.image_files if f[1] == name)
-            lbl_path = next(f[0] for f in self.label_files if f[1] == name)
-            self.paired_files[name] = (img_path, lbl_path)
-
-        self.unpaired_images = image_names - label_names
-        self.unpaired_labels = label_names - image_names
-
-        return len(self.image_files), len(self.label_files)
 
     def get_match_report(self) -> Dict:
         """Generate file matching report
-
+        
         Returns:
             Dict with paired_count, unpaired_images_count, unpaired_labels_count,
             and sorted name lists
@@ -296,61 +288,12 @@ class ValidExtractor:
             'paired_names': sorted(list(self.paired_files.keys())),
         }
 
-    def select_by_ratio(self, ratio: float, seed: Optional[int] = None) -> List[str]:
-        """Select a random subset of paired files by ratio
-
-        Args:
-            ratio: Extraction ratio (0.0 to 1.0)
-            seed: Random seed for reproducibility
-
-        Returns:
-            Sorted list of selected file names
-        """
-        paired_names = list(self.paired_files.keys())
-        count = max(1, int(len(paired_names) * ratio))
-        return self._random_select(paired_names, count, seed)
-
-    def select_by_count(self, count: int, seed: Optional[int] = None) -> List[str]:
-        """Select a random subset of paired files by exact count
-
-        Args:
-            count: Number of files to select
-            seed: Random seed for reproducibility
-
-        Returns:
-            Sorted list of selected file names
-        """
-        paired_names = list(self.paired_files.keys())
-        count = min(count, len(paired_names))
-        return self._random_select(paired_names, count, seed)
-
-    def select_manual(self, selected_names: List[str]) -> List[str]:
-        """Select manually specified file names
-
-        Args:
-            selected_names: List of file names to select
-
-        Returns:
-            List of valid selected file names (sorted)
-        """
-        return sorted([n for n in selected_names if n in self.paired_files])
-
-    def _random_select(self, names: List[str], count: int, seed: Optional[int] = None) -> List[str]:
-        """Randomly select a subset of names"""
-        if seed is not None:
-            random.seed(seed)
-        else:
-            random.seed()
-        selected = random.sample(names, count)
-        random.seed()
-        return sorted(selected)
-
     def generate_preview(self, selected_names: List[str]) -> List[Tuple[str, str, str]]:
         """Generate preview list of files to be extracted
-
+        
         Args:
             selected_names: List of selected file names
-
+            
         Returns:
             List of (name, image_path, label_path) tuples
         """
@@ -368,12 +311,12 @@ class ValidExtractor:
         valid_dir: str = ""
     ) -> Tuple[int, int, List[Dict]]:
         """Execute copy or move operation for selected files
-
+        
         Args:
             selected_names: List of file names to extract
             operation: 'copy' or 'move'
             valid_dir: Target valid/ directory path (project root by default)
-
+            
         Returns:
             (success_count, failure_count, error_details)
         """
@@ -452,10 +395,10 @@ class ValidExtractor:
 
     def validate_extraction(self, valid_dir: str = "") -> Dict:
         """Validate extracted files in the valid directory
-
+        
         Args:
             valid_dir: Path to the valid/ directory
-
+            
         Returns:
             Dict with validation results
         """
@@ -504,3 +447,54 @@ class ValidExtractor:
 
         result['valid'] = result['paired_count'] == result['image_count'] == result['label_count']
         return result
+
+    def generate_extraction_report(self) -> str:
+        """Generate a comprehensive extraction report
+        
+        Returns:
+            Formatted report string
+        """
+        report = []
+        report.append("=" * 70)
+        report.append("DATASET EXTRACTION REPORT")
+        report.append("=" * 70)
+        report.append(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        report.append("")
+        
+        report.append("--- ORIGINAL DATASET STATISTICS ---")
+        report.append(f"Total Images: {self.original_stats.get('total_images', 0)}")
+        report.append(f"Total Objects: {self.original_stats.get('total_objects', 0)}")
+        report.append(f"Number of Classes: {self.original_stats.get('class_count', 0)}")
+        report.append("")
+        report.append("Class Distribution:")
+        for cls_id, stats in sorted(self.original_stats.get('class_stats', {}).items()):
+            report.append(f"  [{cls_id}] {stats['name']}: {stats['count']} images ({stats['percentage']:.2f}%)")
+        report.append("")
+        
+        report.append("--- EXTRACTION CONFIGURATION ---")
+        report.append(f"Random Seed: {self.extraction_config.get('seed', 'None')}")
+        report.append("Selected Classes and Ratios:")
+        for cls_id, ratio in self.extraction_config.get('class_selections', {}).items():
+            cls_name = self.class_mapping.get(cls_id, f"unknown_{cls_id}")
+            report.append(f"  [{cls_id}] {cls_name}: {int(ratio * 100)}%")
+        report.append("")
+        
+        report.append("--- EXTRACTION RESULTS ---")
+        report.append(f"Selected Images: {self.result_stats.get('total_images', 0)}")
+        report.append(f"Selected Objects: {self.result_stats.get('total_objects', 0)}")
+        report.append("")
+        report.append("Extracted Class Distribution:")
+        for cls_id, stats in sorted(self.result_stats.get('class_stats', {}).items()):
+            report.append(f"  [{cls_id}] {stats['name']}: {stats['count']} images ({stats['percentage']:.2f}%)")
+        report.append("")
+        
+        report.append("--- VALIDATION ---")
+        if self.result_stats.get('total_images', 0) > 0:
+            report.append("[OK] Extraction completed successfully")
+            report.append(f"[OK] Data integrity maintained: {self.result_stats['total_images']} paired files")
+        else:
+            report.append("[FAIL] No images were selected")
+        
+        report.append("=" * 70)
+        
+        return "\n".join(report)
