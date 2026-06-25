@@ -16,66 +16,84 @@ class YOLOToolsApp:
     
     def __init__(self, root):
         self.root = root
-        self.root.title("YORO-You Only Run Once")
-        self.root.geometry("1000x800")
+        self.root.title("YORO - Video Processing Workspace")
+        self.root.geometry("1400x900")
+        self.root.minsize(1000, 600)
         
-        Theme.apply_default_style()
+        # Apply dark theme
+        Theme.apply_dark_theme()
+        
+        # Set window background to match dark theme
+        self.root.configure(bg=Theme.DARK_COLORS['bg_primary'])
         
         self._create_menu()
         self._create_ui()
     
     def _create_menu(self):
-        menubar = tk.Menu(self.root)
+        menubar = tk.Menu(self.root,
+                         bg=Theme.DARK_COLORS['bg_secondary'],
+                         fg=Theme.DARK_COLORS['fg_primary'],
+                         activebackground=Theme.DARK_COLORS['accent'],
+                         activeforeground='#FFFFFF',
+                         borderwidth=0)
         self.root.config(menu=menubar)
         
-        file_menu = tk.Menu(menubar, tearoff=0)
+        file_menu = tk.Menu(menubar, tearoff=0,
+                           bg=Theme.DARK_COLORS['bg_secondary'],
+                           fg=Theme.DARK_COLORS['fg_primary'],
+                           activebackground=Theme.DARK_COLORS['accent'],
+                           activeforeground='#FFFFFF')
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="Exit", command=self.root.quit)
         
-        help_menu = tk.Menu(menubar, tearoff=0)
+        help_menu = tk.Menu(menubar, tearoff=0,
+                           bg=Theme.DARK_COLORS['bg_secondary'],
+                           fg=Theme.DARK_COLORS['fg_primary'],
+                           activebackground=Theme.DARK_COLORS['accent'],
+                           activeforeground='#FFFFFF')
         menubar.add_cascade(label="Help", menu=help_menu)
         help_menu.add_command(label="About", command=self._show_about)
     
     def _create_ui(self):
         notebook = ttk.Notebook(self.root)
-        notebook.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+        notebook.pack(fill=tk.BOTH, expand=True, padx=8, pady=8)
         
         self.frame_extractor = FrameExtractorGUI(notebook)
-        notebook.add(self.frame_extractor, text="📹 Video Frame Extraction")
+        notebook.add(self.frame_extractor, text="  Video Frame Extraction  ")
         
         self.file_renamer = FileRenamerGUI(notebook)
-        notebook.add(self.file_renamer, text="📝 Batch Rename")
+        notebook.add(self.file_renamer, text="  Batch Rename  ")
         
         self.orphan_cleaner = OrphanCleanerGUI(notebook)
-        notebook.add(self.orphan_cleaner, text="🧹 Orphan File Cleaner")
+        notebook.add(self.orphan_cleaner, text="  Orphan File Cleaner  ")
         
         self.unlabeled_processor = UnlabeledProcessorGUI(notebook)
-        notebook.add(self.unlabeled_processor, text="📋 Unlabeled Processor")
+        notebook.add(self.unlabeled_processor, text="  Unlabeled Processor  ")
         
         self.yolo_stats = YOLOStatsGUI(notebook)
-        notebook.add(self.yolo_stats, text="📊 YOLO Statistics")
+        notebook.add(self.yolo_stats, text="  YOLO Statistics  ")
         
         self.valid_extractor = ValidExtractorGUI(notebook)
-        notebook.add(self.valid_extractor, text="✅ Validation Set Extractor")
+        notebook.add(self.valid_extractor, text="  Validation Set  ")
         
         self.yolo_trainer = YOLOTrainerGUI(notebook)
-        notebook.add(self.yolo_trainer, text="🚀 YOLO Trainer")
+        notebook.add(self.yolo_trainer, text="  YOLO Trainer  ")
     
     def _show_about(self):
         from tkinter import messagebox
         messagebox.showinfo(
             "About",
-            "YOLO Training Tools Collection\n\n"
-            "Version: 2.3 (Modular Refactored)\n\n"
+            "YORO - Video Processing Workspace\n\n"
+            "Version: 2.3 (Workspace Refactored)\n\n"
             "Features:\n"
-            "• Video Frame Extraction\n"
-            "• Batch File Rename\n"
-            "• Orphan File Cleaning\n"
-            "• Unlabeled File Processing\n"
-            "• YOLO Annotation Statistics\n"
-            "• Validation Set Extraction\n"
-            "• YOLO Model Training\n\n"
-            "Built with layered architecture design, modular development"
+            "  Video Frame Extraction (Workspace UI)\n"
+            "  Batch File Rename\n"
+            "  Orphan File Cleaning\n"
+            "  Unlabeled File Processing\n"
+            "  YOLO Annotation Statistics\n"
+            "  Validation Set Extraction\n"
+            "  YOLO Model Training\n\n"
+            "Dark theme | Workspace-oriented design"
         )
 
 

@@ -13,7 +13,7 @@ class YOLOStatsGUI(ttk.Frame):
     """YOLO Statistics GUI Component"""
     
     def __init__(self, parent, **kwargs):
-        super().__init__(parent, **kwargs)
+        super().__init__(parent, **kwargs)             
         
         self.persistence = PersistenceManager.get_instance()
         self.config_file = os.path.join(os.path.dirname(__file__), "..", "..", "config_data", "class_mapping.json")

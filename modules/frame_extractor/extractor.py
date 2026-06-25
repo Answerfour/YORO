@@ -6,6 +6,12 @@ except ImportError:
     CV2_AVAILABLE = False
     cv2 = None
 
+try:
+    import numpy as np
+    NP_AVAILABLE = True
+except ImportError:
+    NP_AVAILABLE = False
+
 import os
 from datetime import datetime
 from typing import Optional, Callable, List, Tuple
@@ -138,10 +144,27 @@ class FrameExtractor:
     
     def _save_frame(self, frame, output_path: str) -> bool:
         try:
+            # cv2.imwrite fails with non-ASCII paths on Windows.
+            # Use cv2.imencode + ndarray.tofile() to support Chinese/Unicode paths.
             if self.config.output_format == "jpg":
+                ext = '.jpg'
                 encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), self.config.quality]
-                return cv2.imwrite(output_path, frame, encode_param)
             else:
-                return cv2.imwrite(output_path, frame)
-        except Exception:
+                ext = '.png'
+                encode_param = [int(cv2.IMWRITE_PNG_COMPRESSION), 3]
+            
+            success, buf = cv2.imencode(ext, frame, encode_param)
+            if success:
+                buf.tofile(output_path)
+                return True
             return False
+        except Exception:
+            # Fallback: try cv2.imwrite directly
+            try:
+                if self.config.output_format == "jpg":
+                    encode_param = [int(cv2.IMWRITE_JPEG_QUALITY), self.config.quality]
+                    return cv2.imwrite(output_path, frame, encode_param)
+                else:
+                    return cv2.imwrite(output_path, frame)
+            except Exception:
+                return False
